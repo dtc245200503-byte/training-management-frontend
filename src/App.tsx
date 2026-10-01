@@ -15,6 +15,7 @@ import Layout from './components/Layout'
 import LoginPage from './components/LoginPage'
 import PermissionPage from './components/PermissionPage'
 import ResetPasswordPage from './components/ResetPasswordPage'
+import RolePermissionPage from './components/RolePermissionPage'
 import UserManagementPage from './components/UserManagementPage'
 
 import {
@@ -243,10 +244,8 @@ function App() {
           <Route
             path="/roles"
             element={
-              <PermissionPage
+              <RolePermissionPage
                 user={user}
-                permission="ROLE_MANAGE"
-                title="Vai trò và phân quyền"
               />
             }
           />
