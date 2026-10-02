@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState,
 } from 'react'
@@ -17,18 +18,30 @@ import LoginPage from './components/LoginPage'
 import PermissionPage from './components/PermissionPage'
 import ResetPasswordPage from './components/ResetPasswordPage'
 import RolePermissionPage from './components/RolePermissionPage'
+import Toast from './components/Toast'
 import UserManagementPage from './components/UserManagementPage'
 
 import {
   forgotPassword,
   getCurrentUser,
   login,
+  logout,
+  refreshAccessToken,
   resetPassword,
 } from './services/authService'
 
 import type {
   CurrentUser,
 } from './types/auth'
+
+
+type ToastType = 'success' | 'warning'
+
+
+interface ToastState {
+  message: string
+  type: ToastType
+}
 
 
 function Page({
@@ -50,10 +63,14 @@ function Page({
 
 interface AuthenticatedAppProps {
   user: CurrentUser
+
   onUserUpdated: (
     user: CurrentUser,
   ) => void
-  onLogout: () => void
+
+  onLogout: (
+    message?: string,
+  ) => void
 }
 
 
@@ -67,13 +84,21 @@ function AuthenticatedApp({
 
   useEffect(() => {
     const refreshCurrentUser = async () => {
-      const accessToken =
+      let accessToken =
         localStorage.getItem(
           'access_token',
         )
 
       if (!accessToken) {
-        onLogout()
+        sessionStorage.setItem(
+          'return_path',
+          location.pathname,
+        )
+
+        onLogout(
+          'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+        )
+
         return
       }
 
@@ -85,11 +110,101 @@ function AuthenticatedApp({
 
         onUserUpdated(currentUser)
       } catch {
-        onLogout()
+        try {
+          const result =
+            await refreshAccessToken()
+
+          accessToken =
+            result.access_token
+
+          const currentUser =
+            await getCurrentUser(
+              accessToken,
+            )
+
+          onUserUpdated(currentUser)
+        } catch {
+          sessionStorage.setItem(
+            'return_path',
+            location.pathname,
+          )
+
+          onLogout(
+            'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+          )
+        }
       }
     }
 
     refreshCurrentUser()
+  }, [location.pathname])
+
+
+  useEffect(() => {
+    let lastActivity = Date.now()
+
+    const updateActivity = () => {
+      lastActivity = Date.now()
+    }
+
+    const activityEvents = [
+      'click',
+      'keydown',
+      'mousemove',
+      'scroll',
+      'touchstart',
+    ]
+
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(
+        eventName,
+        updateActivity,
+      )
+    })
+
+
+    const refreshInterval =
+      window.setInterval(
+        async () => {
+          const activeRecently =
+            Date.now() - lastActivity
+            < 10 * 60 * 1000
+
+          if (!activeRecently) {
+            return
+          }
+
+          try {
+            await refreshAccessToken()
+          } catch {
+            sessionStorage.setItem(
+              'return_path',
+              location.pathname,
+            )
+
+            onLogout(
+              'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+            )
+          }
+        },
+        10 * 60 * 1000,
+      )
+
+
+    return () => {
+      activityEvents.forEach(
+        (eventName) => {
+          window.removeEventListener(
+            eventName,
+            updateActivity,
+          )
+        },
+      )
+
+      window.clearInterval(
+        refreshInterval,
+      )
+    }
   }, [location.pathname])
 
 
@@ -99,7 +214,9 @@ function AuthenticatedApp({
         element={
           <Layout
             user={user}
-            onLogout={onLogout}
+            onLogout={() =>
+              onLogout()
+            }
           />
         }
       >
@@ -218,6 +335,53 @@ function App() {
   const [resetToken, setResetToken] =
     useState<string | null>(null)
 
+  const [toast, setToast] =
+    useState<ToastState | null>(
+      null,
+    )
+
+
+  const closeToast = useCallback(
+    () => {
+      setToast(null)
+    },
+    [],
+  )
+
+
+  const showToast = (
+    message: string,
+    type: ToastType,
+  ) => {
+    setToast({
+      message,
+      type,
+    })
+  }
+
+
+  const clearSession = (
+    message = '',
+  ) => {
+    localStorage.removeItem(
+      'access_token',
+    )
+
+    localStorage.removeItem(
+      'refresh_token',
+    )
+
+    setUser(null)
+    setShowForgotPassword(false)
+
+    if (message) {
+      showToast(
+        message,
+        'warning',
+      )
+    }
+  }
+
 
   useEffect(() => {
     const params = new URLSearchParams(
@@ -238,30 +402,59 @@ function App() {
 
 
     const loadUser = async () => {
-      const accessToken =
+      let accessToken =
         localStorage.getItem(
           'access_token',
         )
 
-      if (!accessToken) {
+      const refreshToken =
+        localStorage.getItem(
+          'refresh_token',
+        )
+
+      if (
+        !accessToken
+        && !refreshToken
+      ) {
         setLoading(false)
         return
       }
 
       try {
-        const currentUser =
-          await getCurrentUser(
-            accessToken,
-          )
+        if (!accessToken) {
+          const result =
+            await refreshAccessToken()
 
-        setUser(currentUser)
+          accessToken =
+            result.access_token
+        }
+
+        try {
+          const currentUser =
+            await getCurrentUser(
+              accessToken,
+            )
+
+          setUser(currentUser)
+        } catch {
+          const result =
+            await refreshAccessToken()
+
+          const currentUser =
+            await getCurrentUser(
+              result.access_token,
+            )
+
+          setUser(currentUser)
+        }
       } catch {
-        localStorage.removeItem(
-          'access_token',
+        sessionStorage.setItem(
+          'return_path',
+          window.location.pathname,
         )
 
-        localStorage.removeItem(
-          'refresh_token',
+        clearSession(
+          'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
         )
       } finally {
         setLoading(false)
@@ -297,6 +490,28 @@ function App() {
       )
 
     setUser(currentUser)
+
+    const returnPath =
+      sessionStorage.getItem(
+        'return_path',
+      )
+
+    if (returnPath) {
+      sessionStorage.removeItem(
+        'return_path',
+      )
+
+      window.history.replaceState(
+        {},
+        '',
+        returnPath,
+      )
+    }
+
+    showToast(
+      'Đăng nhập thành công.',
+      'success',
+    )
   }
 
 
@@ -335,18 +550,47 @@ function App() {
   }
 
 
-  const handleLogout = () => {
-    localStorage.removeItem(
-      'access_token',
+  const handleLogout = async (
+    message = '',
+  ) => {
+    if (message) {
+      clearSession(message)
+      return
+    }
+
+    sessionStorage.removeItem(
+      'return_path',
     )
 
-    localStorage.removeItem(
-      'refresh_token',
+    try {
+      await logout()
+    } catch {
+      // Vẫn xóa phiên trên trình duyệt
+      // nếu server không phản hồi.
+    }
+
+    clearSession()
+
+    window.history.replaceState(
+      {},
+      '',
+      '/',
     )
 
-    setUser(null)
-    setShowForgotPassword(false)
+    showToast(
+      'Đăng xuất thành công.',
+      'success',
+    )
   }
+
+
+  const toastElement = toast ? (
+    <Toast
+      message={toast.message}
+      type={toast.type}
+      onClose={closeToast}
+    />
+  ) : null
 
 
   if (loading) {
@@ -356,10 +600,14 @@ function App() {
 
   if (resetToken) {
     return (
-      <ResetPasswordPage
-        onSubmit={handleResetPassword}
-        onBack={handleBackToLogin}
-      />
+      <>
+        <ResetPasswordPage
+          onSubmit={handleResetPassword}
+          onBack={handleBackToLogin}
+        />
+
+        {toastElement}
+      </>
     )
   }
 
@@ -367,40 +615,52 @@ function App() {
   if (!user) {
     if (showForgotPassword) {
       return (
-        <ForgotPasswordPage
-          onSubmit={
-            handleForgotPassword
-          }
-          onBack={() =>
-            setShowForgotPassword(
-              false,
-            )
-          }
-        />
+        <>
+          <ForgotPasswordPage
+            onSubmit={
+              handleForgotPassword
+            }
+            onBack={() =>
+              setShowForgotPassword(
+                false,
+              )
+            }
+          />
+
+          {toastElement}
+        </>
       )
     }
 
     return (
-      <LoginPage
-        onLogin={handleLogin}
-        onForgotPassword={() =>
-          setShowForgotPassword(
-            true,
-          )
-        }
-      />
+      <>
+        <LoginPage
+          onLogin={handleLogin}
+          onForgotPassword={() =>
+            setShowForgotPassword(
+              true,
+            )
+          }
+        />
+
+        {toastElement}
+      </>
     )
   }
 
 
   return (
-    <BrowserRouter>
-      <AuthenticatedApp
-        user={user}
-        onUserUpdated={setUser}
-        onLogout={handleLogout}
-      />
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <AuthenticatedApp
+          user={user}
+          onUserUpdated={setUser}
+          onLogout={handleLogout}
+        />
+      </BrowserRouter>
+
+      {toastElement}
+    </>
   )
 }
 
