@@ -1,6 +1,12 @@
 const API_URL = 'http://127.0.0.1:8000'
 
 
+export interface UserRoleItem {
+  role_id: number
+  role_name: string
+}
+
+
 export interface UserItem {
   user_id: number
   username: string
@@ -8,6 +14,7 @@ export interface UserItem {
   email: string
   phone: string | null
   role_id: number
+  roles: UserRoleItem[]
   status: 'active' | 'locked'
 }
 
@@ -42,7 +49,13 @@ export interface UpdateUserData {
   full_name?: string
   email?: string
   phone?: string
-  role_id?: number
+}
+
+
+export interface UserRolesResponse {
+  user_id: number
+  full_name: string
+  roles: UserRoleItem[]
 }
 
 
@@ -158,6 +171,90 @@ export async function updateUser(
     throw new Error(
       result.detail
         || 'Không thể cập nhật tài khoản.',
+    )
+  }
+}
+
+
+export async function getUserRoles(
+  userId: number,
+): Promise<UserRolesResponse> {
+  const response = await fetch(
+    `${API_URL}/api/users/${userId}/roles`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Không thể tải vai trò của người dùng.',
+    )
+  }
+
+  return data
+}
+
+
+export async function assignUserRole(
+  userId: number,
+  roleId: number,
+): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/api/users/${userId}/roles`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+      body: JSON.stringify({
+        role_id: roleId,
+      }),
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Không thể gán vai trò.',
+    )
+  }
+}
+
+
+export async function removeUserRole(
+  userId: number,
+  roleId: number,
+): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/api/users/${userId}/roles`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+      body: JSON.stringify({
+        role_id: roleId,
+      }),
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Không thể thu hồi vai trò.',
     )
   }
 }

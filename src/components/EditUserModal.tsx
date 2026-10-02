@@ -39,10 +39,6 @@ function EditUserModal({
     user.phone || '',
   )
 
-  const [roleId, setRoleId] = useState(
-    String(user.role_id),
-  )
-
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -53,12 +49,6 @@ function EditUserModal({
     event.preventDefault()
 
     setError('')
-
-    if (!roleId) {
-      setError('Vui lòng chọn vai trò.')
-      return
-    }
-
     setLoading(true)
 
     try {
@@ -68,7 +58,6 @@ function EditUserModal({
           full_name: fullName.trim(),
           email: email.trim(),
           phone: phone.trim(),
-          role_id: Number(roleId),
         },
       )
 
@@ -173,54 +162,6 @@ function EditUserModal({
               }
               placeholder="Nhập số điện thoại"
             />
-          </div>
-
-
-          <div className="modal-form-field">
-            <label htmlFor="edit-role">
-              Vai trò
-            </label>
-
-            <select
-              id="edit-role"
-              value={roleId}
-              onChange={(event) =>
-                setRoleId(event.target.value)
-              }
-              required
-            >
-              <option value="1">
-                Quản trị viên
-              </option>
-
-              <option value="2">
-                Giảng viên
-              </option>
-
-              <option value="3">
-                Học viên
-              </option>
-
-              <option value="4">
-                Kế toán
-              </option>
-
-              <option value="5">
-                Quản lý đào tạo
-              </option>
-
-              <option value="6">
-                Tuyển sinh
-              </option>
-
-              <option value="7">
-                Giáo vụ
-              </option>
-
-              <option value="8">
-                Ban quản lý
-              </option>
-            </select>
           </div>
 
 

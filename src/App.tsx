@@ -7,6 +7,7 @@ import {
   BrowserRouter,
   Route,
   Routes,
+  useLocation,
 } from 'react-router-dom'
 
 import ErrorPage from './components/ErrorPage'
@@ -25,7 +26,9 @@ import {
   resetPassword,
 } from './services/authService'
 
-import type { CurrentUser } from './types/auth'
+import type {
+  CurrentUser,
+} from './types/auth'
 
 
 function Page({
@@ -45,19 +48,175 @@ function Page({
 }
 
 
-function App() {
-  const [user, setUser] = useState<CurrentUser | null>(
-    null,
+interface AuthenticatedAppProps {
+  user: CurrentUser
+  onUserUpdated: (
+    user: CurrentUser,
+  ) => void
+  onLogout: () => void
+}
+
+
+function AuthenticatedApp({
+  user,
+  onUserUpdated,
+  onLogout,
+}: AuthenticatedAppProps) {
+  const location = useLocation()
+
+
+  useEffect(() => {
+    const refreshCurrentUser = async () => {
+      const accessToken =
+        localStorage.getItem(
+          'access_token',
+        )
+
+      if (!accessToken) {
+        onLogout()
+        return
+      }
+
+      try {
+        const currentUser =
+          await getCurrentUser(
+            accessToken,
+          )
+
+        onUserUpdated(currentUser)
+      } catch {
+        onLogout()
+      }
+    }
+
+    refreshCurrentUser()
+  }, [location.pathname])
+
+
+  return (
+    <Routes>
+      <Route
+        element={
+          <Layout
+            user={user}
+            onLogout={onLogout}
+          />
+        }
+      >
+        <Route
+          path="/"
+          element={
+            <Page title="Trang chủ" />
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <UserManagementPage
+              user={user}
+            />
+          }
+        />
+
+        <Route
+          path="/roles"
+          element={
+            <RolePermissionPage
+              user={user}
+            />
+          }
+        />
+
+        <Route
+          path="/courses"
+          element={
+            <PermissionPage
+              user={user}
+              permission="COURSE_MANAGE"
+              title="Khóa học"
+            />
+          }
+        />
+
+        <Route
+          path="/classes"
+          element={
+            <PermissionPage
+              user={user}
+              permission="CLASS_MANAGE"
+              title="Lớp học"
+            />
+          }
+        />
+
+        <Route
+          path="/grades"
+          element={
+            <PermissionPage
+              user={user}
+              permission="GRADE_VIEW"
+              title="Điểm"
+            />
+          }
+        />
+
+        <Route
+          path="/tuition"
+          element={
+            <PermissionPage
+              user={user}
+              permission="TUITION_VIEW"
+              title="Học phí"
+            />
+          }
+        />
+
+        <Route
+          path="/attendance"
+          element={
+            <PermissionPage
+              user={user}
+              permission="ATTENDANCE_VIEW"
+              title="Điểm danh"
+            />
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <ErrorPage
+              statusCode={404}
+              title="Không tìm thấy trang"
+              message={
+                'Trang bạn đang truy cập không tồn tại.'
+              }
+            />
+          }
+        />
+      </Route>
+    </Routes>
   )
+}
 
-  const [loading, setLoading] = useState(true)
 
-  const [showForgotPassword, setShowForgotPassword] =
-    useState(false)
+function App() {
+  const [user, setUser] =
+    useState<CurrentUser | null>(
+      null,
+    )
 
-  const [resetToken, setResetToken] = useState<
-    string | null
-  >(null)
+  const [loading, setLoading] =
+    useState(true)
+
+  const [
+    showForgotPassword,
+    setShowForgotPassword,
+  ] = useState(false)
+
+  const [resetToken, setResetToken] =
+    useState<string | null>(null)
 
 
   useEffect(() => {
@@ -68,7 +227,8 @@ function App() {
     const token = params.get('token')
 
     if (
-      window.location.pathname === '/reset-password'
+      window.location.pathname
+        === '/reset-password'
       && token
     ) {
       setResetToken(token)
@@ -78,9 +238,10 @@ function App() {
 
 
     const loadUser = async () => {
-      const accessToken = localStorage.getItem(
-        'access_token',
-      )
+      const accessToken =
+        localStorage.getItem(
+          'access_token',
+        )
 
       if (!accessToken) {
         setLoading(false)
@@ -88,14 +249,20 @@ function App() {
       }
 
       try {
-        const currentUser = await getCurrentUser(
-          accessToken,
-        )
+        const currentUser =
+          await getCurrentUser(
+            accessToken,
+          )
 
         setUser(currentUser)
       } catch {
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
+        localStorage.removeItem(
+          'access_token',
+        )
+
+        localStorage.removeItem(
+          'refresh_token',
+        )
       } finally {
         setLoading(false)
       }
@@ -124,9 +291,10 @@ function App() {
       result.refresh_token,
     )
 
-    const currentUser = await getCurrentUser(
-      result.access_token,
-    )
+    const currentUser =
+      await getCurrentUser(
+        result.access_token,
+      )
 
     setUser(currentUser)
   }
@@ -168,8 +336,13 @@ function App() {
 
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
+    localStorage.removeItem(
+      'access_token',
+    )
+
+    localStorage.removeItem(
+      'refresh_token',
+    )
 
     setUser(null)
     setShowForgotPassword(false)
@@ -195,9 +368,13 @@ function App() {
     if (showForgotPassword) {
       return (
         <ForgotPasswordPage
-          onSubmit={handleForgotPassword}
+          onSubmit={
+            handleForgotPassword
+          }
           onBack={() =>
-            setShowForgotPassword(false)
+            setShowForgotPassword(
+              false,
+            )
           }
         />
       )
@@ -207,7 +384,9 @@ function App() {
       <LoginPage
         onLogin={handleLogin}
         onForgotPassword={() =>
-          setShowForgotPassword(true)
+          setShowForgotPassword(
+            true,
+          )
         }
       />
     )
@@ -216,109 +395,11 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          element={
-            <Layout
-              user={user}
-              onLogout={handleLogout}
-            />
-          }
-        >
-          <Route
-            path="/"
-            element={
-              <Page title="Trang chủ" />
-            }
-          />
-
-          <Route
-            path="/users"
-            element={
-              <UserManagementPage
-                user={user}
-              />
-            }
-          />
-
-          <Route
-            path="/roles"
-            element={
-              <RolePermissionPage
-                user={user}
-              />
-            }
-          />
-
-          <Route
-            path="/courses"
-            element={
-              <PermissionPage
-                user={user}
-                permission="COURSE_MANAGE"
-                title="Khóa học"
-              />
-            }
-          />
-
-          <Route
-            path="/classes"
-            element={
-              <PermissionPage
-                user={user}
-                permission="CLASS_MANAGE"
-                title="Lớp học"
-              />
-            }
-          />
-
-          <Route
-            path="/grades"
-            element={
-              <PermissionPage
-                user={user}
-                permission="GRADE_VIEW"
-                title="Điểm"
-              />
-            }
-          />
-
-          <Route
-            path="/tuition"
-            element={
-              <PermissionPage
-                user={user}
-                permission="TUITION_VIEW"
-                title="Học phí"
-              />
-            }
-          />
-
-          <Route
-            path="/attendance"
-            element={
-              <PermissionPage
-                user={user}
-                permission="ATTENDANCE_VIEW"
-                title="Điểm danh"
-              />
-            }
-          />
-
-          <Route
-            path="*"
-            element={
-              <ErrorPage
-                statusCode={404}
-                title="Không tìm thấy trang"
-                message={
-                  'Trang bạn đang truy cập không tồn tại.'
-                }
-              />
-            }
-          />
-        </Route>
-      </Routes>
+      <AuthenticatedApp
+        user={user}
+        onUserUpdated={setUser}
+        onLogout={handleLogout}
+      />
     </BrowserRouter>
   )
 }
