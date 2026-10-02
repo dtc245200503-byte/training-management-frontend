@@ -11,6 +11,12 @@ interface LoginResponse {
 }
 
 
+interface RefreshResponse {
+  access_token: string
+  token_type: string
+}
+
+
 export async function login(
   email: string,
   password: string,
@@ -38,6 +44,81 @@ export async function login(
   }
 
   return data
+}
+
+
+export async function refreshAccessToken():
+Promise<RefreshResponse> {
+  const refreshToken =
+    localStorage.getItem('refresh_token')
+
+  if (!refreshToken) {
+    throw new Error(
+      'Phiên đăng nhập đã hết hạn.',
+    )
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/auth/refresh`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        refresh_token: refreshToken,
+      }),
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Phiên đăng nhập đã hết hạn.',
+    )
+  }
+
+  localStorage.setItem(
+    'access_token',
+    data.access_token,
+  )
+
+  return data
+}
+
+
+export async function logout():
+Promise<void> {
+  const refreshToken =
+    localStorage.getItem('refresh_token')
+
+  if (!refreshToken) {
+    return
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/auth/logout`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        refresh_token: refreshToken,
+      }),
+    },
+  )
+
+  if (!response.ok) {
+    const data = await response.json()
+
+    throw new Error(
+      data.detail
+        || 'Không thể đăng xuất.',
+    )
+  }
 }
 
 
