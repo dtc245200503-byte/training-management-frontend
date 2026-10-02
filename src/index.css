@@ -1304,3 +1304,54 @@ body {
 .handover-warning li {
   margin: 5px 0;
 }
+
+/* =========================
+   PASSWORD SHOW / HIDE
+========================= */
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+
+.password-input-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 48px;
+}
+
+
+.password-toggle-button {
+  position: absolute;
+
+  top: 50%;
+  right: 12px;
+
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  font-size: 18px;
+
+  cursor: pointer;
+}
+
+
+.password-toggle-button:hover {
+  background: transparent;
+}
+
+
+.password-toggle-button:focus {
+  outline: none;
+}

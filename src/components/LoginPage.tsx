@@ -18,6 +18,9 @@ function LoginPage({
 }: LoginPageProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] =
+    useState(false)
+
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -71,22 +74,124 @@ function LoginPage({
             />
           </div>
 
+
           <div className="login-field">
             <label htmlFor="password">
               Mật khẩu
             </label>
 
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-              placeholder="Nhập mật khẩu"
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                id="password"
+                type={
+                  showPassword
+                    ? 'text'
+                    : 'password'
+                }
+                value={password}
+                onChange={(event) =>
+                  setPassword(
+                    event.target.value,
+                  )
+                }
+                placeholder="Nhập mật khẩu"
+                required
+              />
+
+              <button
+                type="button"
+                className="password-toggle-button"
+                onClick={() =>
+                  setShowPassword(
+                    !showPassword,
+                  )
+                }
+                aria-label={
+                  showPassword
+                    ? 'Ẩn mật khẩu'
+                    : 'Hiện mật khẩu'
+                }
+                title={
+                  showPassword
+                    ? 'Ẩn mật khẩu'
+                    : 'Hiện mật khẩu'
+                }
+              >
+                {showPassword ? (
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 3l18 18" />
+
+                    <path
+                      d="
+                        M10.6 10.6
+                        a2 2 0 0 0
+                        2.8 2.8
+                      "
+                    />
+
+                    <path
+                      d="
+                        M9.9 4.2
+                        A10.5 10.5 0 0 1
+                        12 4
+                        c5 0 9 4 10 8
+                        a11.8 11.8 0 0 1
+                        -2 4.2
+                      "
+                    />
+
+                    <path
+                      d="
+                        M6.6 6.6
+                        A11.5 11.5 0 0 0
+                        2 12
+                        c1 4 5 8 10 8
+                        a10.7 10.7 0 0 0
+                        5.4-1.5
+                      "
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path
+                      d="
+                        M2 12
+                        s3.5-7 10-7
+                        10 7 10 7
+                        -3.5 7-10 7
+                        S2 12 2 12z
+                      "
+                    />
+
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
+
 
           <div className="forgot-password-row">
             <button
@@ -98,11 +203,13 @@ function LoginPage({
             </button>
           </div>
 
+
           {error && (
             <p className="login-error">
               {error}
             </p>
           )}
+
 
           <button
             type="submit"
