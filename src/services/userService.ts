@@ -16,6 +16,7 @@ export interface UserItem {
   role_id: number
   roles: UserRoleItem[]
   status: 'active' | 'locked'
+  lock_reason: string | null
 }
 
 
@@ -56,6 +57,21 @@ export interface UserRolesResponse {
   user_id: number
   full_name: string
   roles: UserRoleItem[]
+}
+
+
+export interface ClassNeedHandover {
+  class_id: number
+  class_name: string
+}
+
+
+export interface LockUserResponse {
+  message: string
+  user_id: number
+  lock_reason: string
+  classes_need_handover: ClassNeedHandover[]
+  warning: string | null
 }
 
 
@@ -171,6 +187,61 @@ export async function updateUser(
     throw new Error(
       result.detail
         || 'Không thể cập nhật tài khoản.',
+    )
+  }
+}
+
+
+export async function lockUser(
+  userId: number,
+  lockReason: string,
+): Promise<LockUserResponse> {
+  const response = await fetch(
+    `${API_URL}/api/users/${userId}/lock`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+      body: JSON.stringify({
+        lock_reason: lockReason,
+      }),
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Không thể khóa tài khoản.',
+    )
+  }
+
+  return data
+}
+
+
+export async function unlockUser(
+  userId: number,
+): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/api/users/${userId}/unlock`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Không thể mở khóa tài khoản.',
     )
   }
 }
