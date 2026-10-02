@@ -5,6 +5,7 @@ import {
 
 import {
   getUsers,
+  unlockUser,
 } from '../services/userService'
 
 import type {
@@ -18,6 +19,7 @@ import type {
 import CreateUserModal from './CreateUserModal'
 import EditUserModal from './EditUserModal'
 import ErrorPage from './ErrorPage'
+import LockUserModal from './LockUserModal'
 import UserRoleModal from './UserRoleModal'
 
 
@@ -48,6 +50,12 @@ function UserManagementPage({
 
   const [roleUser, setRoleUser] =
     useState<UserItem | null>(null)
+
+  const [lockingUser, setLockingUser] =
+    useState<UserItem | null>(null)
+
+  const [unlockingUserId, setUnlockingUserId] =
+    useState<number | null>(null)
 
   const [successMessage, setSuccessMessage] =
     useState('')
@@ -194,6 +202,54 @@ function UserManagementPage({
   }
 
 
+  const handleLocked = async () => {
+    setLockingUser(null)
+
+    showSuccessToast(
+      'Khóa tài khoản thành công.',
+    )
+
+    await loadUsers(page)
+  }
+
+
+  const handleUnlock = async (
+    item: UserItem,
+  ) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn mở khóa tài khoản của ${item.full_name}?`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setError('')
+    setSuccessMessage('')
+    setUnlockingUserId(item.user_id)
+
+    try {
+      await unlockUser(item.user_id)
+
+      showSuccessToast(
+        'Mở khóa tài khoản thành công.',
+      )
+
+      await loadUsers(page)
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError(
+          'Không thể mở khóa tài khoản.',
+        )
+      }
+    } finally {
+      setUnlockingUserId(null)
+    }
+  }
+
+
   return (
     <div className="user-management-page">
       <div className="user-page-header">
@@ -201,8 +257,8 @@ function UserManagementPage({
           <h1>Quản lý tài khoản</h1>
 
           <p>
-            Tạo, sửa và quản lý vai trò
-            của người dùng trong hệ thống.
+            Tạo, sửa, quản lý vai trò và
+            trạng thái tài khoản người dùng.
           </p>
         </div>
 
@@ -332,6 +388,7 @@ function UserManagementPage({
               <th>Số điện thoại</th>
               <th>Vai trò</th>
               <th>Trạng thái</th>
+              <th>Lý do khóa</th>
               <th>Thao tác</th>
             </tr>
           </thead>
@@ -340,7 +397,7 @@ function UserManagementPage({
             {loading ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="table-message"
                 >
                   Đang tải...
@@ -349,7 +406,7 @@ function UserManagementPage({
             ) : users.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="table-message"
                 >
                   Không có tài khoản nào.
@@ -403,6 +460,12 @@ function UserManagementPage({
                   </td>
 
                   <td>
+                    {item.status === 'locked'
+                      ? item.lock_reason || '-'
+                      : '-'}
+                  </td>
+
+                  <td>
                     <div className="user-action-buttons">
                       <button
                         type="button"
@@ -425,6 +488,43 @@ function UserManagementPage({
                           }}
                         >
                           Vai trò
+                        </button>
+                      )}
+
+                      {item.status === 'active' ? (
+                        <button
+                          type="button"
+                          className="lock-user-button"
+                          disabled={
+                            item.user_id
+                              === user.user_id
+                          }
+                          onClick={() => {
+                            setSuccessMessage('')
+                            setLockingUser(item)
+                          }}
+                        >
+                          {item.user_id
+                            === user.user_id
+                            ? 'Tài khoản hiện tại'
+                            : 'Khóa'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="unlock-user-button"
+                          disabled={
+                            unlockingUserId
+                              === item.user_id
+                          }
+                          onClick={() =>
+                            handleUnlock(item)
+                          }
+                        >
+                          {unlockingUserId
+                            === item.user_id
+                            ? 'Đang mở...'
+                            : 'Mở khóa'}
                         </button>
                       )}
                     </div>
@@ -499,6 +599,17 @@ function UserManagementPage({
             setRoleUser(null)
           }
           onUpdated={handleRolesUpdated}
+        />
+      )}
+
+
+      {lockingUser && (
+        <LockUserModal
+          user={lockingUser}
+          onClose={() =>
+            setLockingUser(null)
+          }
+          onLocked={handleLocked}
         />
       )}
     </div>
