@@ -18,6 +18,7 @@ import type {
 import CreateUserModal from './CreateUserModal'
 import EditUserModal from './EditUserModal'
 import ErrorPage from './ErrorPage'
+import UserRoleModal from './UserRoleModal'
 
 
 interface UserManagementPageProps {
@@ -45,21 +46,27 @@ function UserManagementPage({
   const [editingUser, setEditingUser] =
     useState<UserItem | null>(null)
 
+  const [roleUser, setRoleUser] =
+    useState<UserItem | null>(null)
+
   const [successMessage, setSuccessMessage] =
     useState('')
 
   const pageSize = 20
 
+  const canManageRoles =
+    user.permissions.includes('ROLE_MANAGE')
 
-  const roleNames: Record<number, string> = {
-    1: 'Quản trị viên',
-    2: 'Giảng viên',
-    3: 'Học viên',
-    4: 'Kế toán',
-    5: 'Quản lý đào tạo',
-    6: 'Tuyển sinh',
-    7: 'Giáo vụ',
-    8: 'Ban quản lý',
+
+  const roleNames: Record<string, string> = {
+    ADMIN: 'Quản trị viên',
+    INSTRUCTOR: 'Giảng viên',
+    STUDENT: 'Học viên',
+    ACCOUNTANT: 'Kế toán',
+    TRAINING_MANAGER: 'Quản lý đào tạo',
+    ADMISSIONS: 'Tuyển sinh',
+    ACADEMIC_AFFAIRS: 'Giáo vụ',
+    MANAGEMENT: 'Ban quản lý',
   }
 
 
@@ -176,6 +183,17 @@ function UserManagementPage({
   }
 
 
+  const handleRolesUpdated = async () => {
+    setRoleUser(null)
+
+    showSuccessToast(
+      'Cập nhật vai trò thành công.',
+    )
+
+    await loadUsers(page)
+  }
+
+
   return (
     <div className="user-management-page">
       <div className="user-page-header">
@@ -183,8 +201,8 @@ function UserManagementPage({
           <h1>Quản lý tài khoản</h1>
 
           <p>
-            Tạo, sửa và tìm kiếm tài khoản
-            người dùng trong hệ thống.
+            Tạo, sửa và quản lý vai trò
+            của người dùng trong hệ thống.
           </p>
         </div>
 
@@ -357,8 +375,17 @@ function UserManagementPage({
                   </td>
 
                   <td>
-                    {roleNames[item.role_id]
-                      || `Vai trò ${item.role_id}`}
+                    {item.roles.length > 0
+                      ? item.roles
+                          .map(
+                            (role) =>
+                              roleNames[
+                                role.role_name
+                              ]
+                              || role.role_name,
+                          )
+                          .join(', ')
+                      : 'Chưa có vai trò'}
                   </td>
 
                   <td>
@@ -376,16 +403,31 @@ function UserManagementPage({
                   </td>
 
                   <td>
-                    <button
-                      type="button"
-                      className="edit-button"
-                      onClick={() => {
-                        setSuccessMessage('')
-                        setEditingUser(item)
-                      }}
-                    >
-                      Sửa
-                    </button>
+                    <div className="user-action-buttons">
+                      <button
+                        type="button"
+                        className="edit-button"
+                        onClick={() => {
+                          setSuccessMessage('')
+                          setEditingUser(item)
+                        }}
+                      >
+                        Sửa
+                      </button>
+
+                      {canManageRoles && (
+                        <button
+                          type="button"
+                          className="edit-button"
+                          onClick={() => {
+                            setSuccessMessage('')
+                            setRoleUser(item)
+                          }}
+                        >
+                          Vai trò
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -445,6 +487,18 @@ function UserManagementPage({
             setEditingUser(null)
           }
           onUpdated={handleUpdated}
+        />
+      )}
+
+
+      {roleUser && canManageRoles && (
+        <UserRoleModal
+          user={roleUser}
+          currentUser={user}
+          onClose={() =>
+            setRoleUser(null)
+          }
+          onUpdated={handleRolesUpdated}
         />
       )}
     </div>

@@ -10,6 +10,18 @@ interface SidebarProps {
 }
 
 
+const roleNames: Record<string, string> = {
+  ADMIN: 'Quản trị viên',
+  INSTRUCTOR: 'Giảng viên',
+  STUDENT: 'Học viên',
+  ACCOUNTANT: 'Kế toán',
+  TRAINING_MANAGER: 'Quản lý đào tạo',
+  ADMISSIONS: 'Tuyển sinh',
+  ACADEMIC_AFFAIRS: 'Giáo vụ',
+  MANAGEMENT: 'Ban quản lý',
+}
+
+
 function Sidebar({
   user,
   onLogout,
@@ -21,6 +33,11 @@ function Sidebar({
 
     return user.permissions.includes(item.permission)
   })
+
+
+  const displayedRoles = user.roles
+    .map((role) => roleNames[role] || role)
+    .join(', ')
 
 
   return (
@@ -49,7 +66,7 @@ function Sidebar({
         <strong>{user.full_name}</strong>
 
         <span>
-          {user.roles.join(', ')}
+          {displayedRoles}
         </span>
 
         <button

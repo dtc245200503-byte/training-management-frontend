@@ -47,7 +47,7 @@ function LoginPage({
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1>Training Management System</h1>
+        <h1>Hệ thống quản lý đào tạo</h1>
 
         <p className="login-subtitle">
           Đăng nhập vào hệ thống
