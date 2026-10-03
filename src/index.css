@@ -3629,3 +3629,373 @@ body {
     transition: none;
   }
 }
+
+/* =========================
+   SCRUM-24 MOBILE NAVIGATION
+========================= */
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.mobile-menu-button,
+.mobile-sidebar-close {
+  display: none;
+}
+
+
+/* =========================
+   MOBILE <= 600px
+========================= */
+
+@media (max-width: 600px) {
+  .app-layout {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .app-main {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+
+  /* TOPBAR */
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+
+    min-height: 68px;
+    padding: 8px 12px;
+
+    gap: 8px;
+  }
+
+  .topbar-left {
+    flex: 1;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .mobile-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    color: #173b68;
+    background: #ffffff;
+
+    cursor: pointer;
+  }
+
+  .mobile-menu-button svg {
+    width: 22px;
+    height: 22px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .topbar-title {
+    min-width: 0;
+  }
+
+  .topbar-welcome {
+    overflow: hidden;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-description {
+    display: none;
+  }
+
+
+  /* USER */
+
+  .topbar-user {
+    display: flex;
+
+    min-width: 0;
+    max-width: 145px;
+
+    padding: 5px 7px;
+
+    gap: 7px;
+  }
+
+  .topbar-avatar {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    font-size: 14px;
+  }
+
+  .topbar-user-info {
+    display: flex;
+
+    min-width: 0;
+  }
+
+  .topbar-user-info strong {
+    overflow: hidden;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-user-info span {
+    overflow: hidden;
+
+    margin-top: 2px;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+
+  /* SIDEBAR DRAWER */
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+
+    width: min(290px, 85vw);
+    height: 100dvh;
+    min-height: 100dvh;
+
+    transform: translateX(-105%);
+
+    transition:
+      transform 0.28s
+      cubic-bezier(0.22, 1, 0.36, 1);
+
+    box-shadow:
+      10px 0 35px
+      rgba(15, 23, 42, 0.25);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 17px 15px;
+  }
+
+  .sidebar-logo {
+    min-width: 0;
+  }
+
+  .sidebar-logo-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .sidebar-logo-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .sidebar-logo strong {
+    font-size: 15px;
+  }
+
+  .sidebar-logo span {
+    font-size: 10px;
+  }
+
+  .mobile-sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 9px;
+
+    color: #dbeafe;
+    background: rgba(255, 255, 255, 0.08);
+
+    cursor: pointer;
+  }
+
+  .mobile-sidebar-close svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sidebar-menu {
+    flex: 1;
+
+    padding: 15px 12px;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .menu-item,
+  .sidebar-logout-menu {
+    min-height: 48px;
+  }
+
+
+  /* OVERLAY */
+
+  .mobile-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+
+    border: none;
+
+    background: rgba(15, 23, 42, 0.5);
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+
+    cursor: pointer;
+  }
+
+
+  /* CONTENT */
+
+  .main-content {
+    padding: 16px 12px;
+  }
+}
+
+
+/* =========================
+   360px
+========================= */
+
+@media (max-width: 380px) {
+  .topbar {
+    padding: 8px;
+  }
+
+  .mobile-menu-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .topbar-welcome {
+    font-size: 12px;
+  }
+
+  .topbar-user {
+    max-width: 130px;
+
+    padding: 4px 5px;
+  }
+
+  .topbar-avatar {
+    width: 32px;
+    height: 32px;
+
+    font-size: 13px;
+  }
+
+  .topbar-user-info strong {
+    font-size: 10px;
+  }
+
+  .topbar-user-info span {
+    font-size: 9px;
+  }
+
+  .main-content {
+    padding: 14px 10px;
+  }
+
+  .dashboard-welcome-card {
+    padding: 22px 17px;
+  }
+
+  .dashboard-welcome-card h1 {
+    font-size: 20px;
+  }
+
+  .dashboard-role {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-action-card {
+    min-height: 100px;
+
+    padding: 15px;
+  }
+
+  .dashboard-action-icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+
+/* =========================
+   REDUCED MOTION
+========================= */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+  .sidebar {
+    transition: none;
+  }
+}

@@ -1,4 +1,9 @@
 import {
+  useEffect,
+  useState,
+} from 'react'
+
+import {
   Outlet,
   useLocation,
 } from 'react-router-dom'
@@ -25,11 +30,27 @@ const roleNames: Record<string, string> = {
 }
 
 
+function MenuIcon() {
+  return (
+    <svg viewBox="0 0 24 24">
+      <path d="M4 6h16" />
+      <path d="M4 12h16" />
+      <path d="M4 18h16" />
+    </svg>
+  )
+}
+
+
 function Layout({
   user,
   onLogout,
 }: LayoutProps) {
   const location = useLocation()
+
+  const [
+    mobileMenuOpen,
+    setMobileMenuOpen,
+  ] = useState(false)
 
 
   const displayedRoles = user.roles
@@ -43,23 +64,84 @@ function Layout({
     .toUpperCase()
 
 
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
+
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return
+    }
+
+    const handleEscape = (
+      event: KeyboardEvent,
+    ) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener(
+      'keydown',
+      handleEscape,
+    )
+
+    return () => {
+      document.removeEventListener(
+        'keydown',
+        handleEscape,
+      )
+    }
+  }, [mobileMenuOpen])
+
+
   return (
     <div className="app-layout">
       <Sidebar
         user={user}
         onLogout={onLogout}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() =>
+          setMobileMenuOpen(false)
+        }
       />
+
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          className="mobile-sidebar-overlay"
+          aria-label="Đóng menu điều hướng"
+          onClick={() =>
+            setMobileMenuOpen(false)
+          }
+        />
+      )}
 
       <div className="app-main">
         <header className="topbar">
-          <div className="topbar-title">
-            <span className="topbar-welcome">
-              Hệ thống quản lý đào tạo
-            </span>
+          <div className="topbar-left">
+            <button
+              type="button"
+              className="mobile-menu-button"
+              aria-label="Mở menu điều hướng"
+              aria-expanded={mobileMenuOpen}
+              onClick={() =>
+                setMobileMenuOpen(true)
+              }
+            >
+              <MenuIcon />
+            </button>
 
-            <span className="topbar-description">
-              Quản lý và theo dõi hoạt động đào tạo
-            </span>
+            <div className="topbar-title">
+              <span className="topbar-welcome">
+                Hệ thống quản lý đào tạo
+              </span>
+
+              <span className="topbar-description">
+                Quản lý và theo dõi hoạt động đào tạo
+              </span>
+            </div>
           </div>
 
           <div className="topbar-user">

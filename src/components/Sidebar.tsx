@@ -1,4 +1,8 @@
-import { useState } from 'react'
+import {
+  useState,
+  type ReactNode,
+} from 'react'
+
 import { NavLink } from 'react-router-dom'
 
 import { menuItems } from '../data/menuItems'
@@ -8,10 +12,12 @@ import type { CurrentUser } from '../types/auth'
 interface SidebarProps {
   user: CurrentUser
   onLogout: () => void
+  mobileOpen: boolean
+  onMobileClose: () => void
 }
 
 
-const menuIcons: Record<string, React.ReactNode> = {
+const menuIcons: Record<string, ReactNode> = {
   '/': (
     <svg viewBox="0 0 24 24">
       <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -116,9 +122,21 @@ function LogoutIcon() {
 }
 
 
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24">
+      <path d="M18 6L6 18" />
+      <path d="M6 6l12 12" />
+    </svg>
+  )
+}
+
+
 function Sidebar({
   user,
   onLogout,
+  mobileOpen,
+  onMobileClose,
 }: SidebarProps) {
   const [
     showLogoutConfirm,
@@ -126,24 +144,35 @@ function Sidebar({
   ] = useState(false)
 
 
-  const visibleMenuItems = menuItems.filter((item) => {
-    if (!item.permission) {
-      return true
-    }
+  const visibleMenuItems = menuItems.filter(
+    (item) => {
+      if (!item.permission) {
+        return true
+      }
 
-    return user.permissions.includes(item.permission)
-  })
+      return user.permissions.includes(
+        item.permission,
+      )
+    },
+  )
 
 
   const handleConfirmLogout = () => {
     setShowLogoutConfirm(false)
+    onMobileClose()
     onLogout()
   }
 
 
   return (
     <>
-      <aside className="sidebar">
+      <aside
+        className={
+          mobileOpen
+            ? 'sidebar mobile-open'
+            : 'sidebar'
+        }
+      >
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <div className="sidebar-logo-icon">
@@ -154,13 +183,24 @@ function Sidebar({
             </div>
 
             <div>
-              <strong>EDUCATE</strong>
+              <strong>
+                EDUCATE
+              </strong>
 
               <span>
                 Quản lý đào tạo
               </span>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="mobile-sidebar-close"
+            aria-label="Đóng menu điều hướng"
+            onClick={onMobileClose}
+          >
+            <CloseIcon />
+          </button>
         </div>
 
 
@@ -174,6 +214,7 @@ function Sidebar({
               key={item.path}
               to={item.path}
               end={item.path === '/'}
+              onClick={onMobileClose}
               className={({ isActive }) =>
                 isActive
                   ? 'menu-item active'
@@ -200,6 +241,7 @@ function Sidebar({
 
           <NavLink
             to="/change-password"
+            onClick={onMobileClose}
             className={({ isActive }) =>
               isActive
                 ? 'menu-item active'
@@ -223,9 +265,10 @@ function Sidebar({
           <button
             type="button"
             className="menu-item sidebar-logout-menu"
-            onClick={() =>
+            onClick={() => {
+              onMobileClose()
               setShowLogoutConfirm(true)
-            }
+            }}
           >
             <span className="menu-icon">
               <LogoutIcon />
@@ -244,8 +287,8 @@ function Sidebar({
           className="logout-confirm-overlay"
           onMouseDown={(event) => {
             if (
-              event.target ===
-              event.currentTarget
+              event.target
+              === event.currentTarget
             ) {
               setShowLogoutConfirm(false)
             }
