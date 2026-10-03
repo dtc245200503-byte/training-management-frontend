@@ -3999,3 +3999,356 @@ body {
     transition: none;
   }
 }
+
+/* =========================
+   SCRUM-25 ERROR PAGE
+========================= */
+
+.error-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: calc(100vh - 135px);
+
+  padding: 30px 20px;
+}
+
+.error-card {
+  width: 100%;
+  max-width: 620px;
+
+  padding: 42px 36px;
+
+  border: 1px solid #e5eaf1;
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  text-align: center;
+
+  box-shadow:
+    0 10px 35px
+    rgba(15, 23, 42, 0.07);
+}
+
+.error-status {
+  margin-bottom: 12px;
+
+  color: #2563eb;
+
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+
+  letter-spacing: -3px;
+}
+
+.error-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 64px;
+  height: 64px;
+
+  margin: 0 auto 20px;
+
+  border-radius: 18px;
+
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.error-icon svg {
+  width: 32px;
+  height: 32px;
+
+  fill: none;
+  stroke: currentColor;
+
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.error-card h1 {
+  margin: 0 0 12px;
+
+  color: #172033;
+
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.error-card p {
+  max-width: 470px;
+
+  margin: 0 auto 28px;
+
+  color: #64748b;
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.error-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+}
+
+.error-action-primary,
+.error-action-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+
+  padding: 0 20px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.18s ease,
+    box-shadow 0.2s ease;
+}
+
+.error-action-primary {
+  border: 1px solid #2563eb;
+
+  color: #ffffff;
+  background: #2563eb;
+
+  box-shadow:
+    0 4px 12px
+    rgba(37, 99, 235, 0.18);
+}
+
+.error-action-primary:hover {
+  border-color: #1d4ed8;
+
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 16px
+    rgba(37, 99, 235, 0.22);
+}
+
+.error-action-secondary {
+  border: 1px solid #d1d5db;
+
+  color: #475569;
+  background: #ffffff;
+}
+
+.error-action-secondary:hover {
+  border-color: #94a3b8;
+
+  color: #1e293b;
+  background: #f8fafc;
+
+  transform: translateY(-1px);
+}
+
+.error-action-primary:active,
+.error-action-secondary:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================
+   ERROR PAGE MOBILE
+========================= */
+
+@media (max-width: 600px) {
+  .error-page {
+    min-height: calc(100vh - 100px);
+
+    padding: 18px 0;
+  }
+
+  .error-card {
+    padding: 32px 20px;
+
+    border-radius: 15px;
+  }
+
+  .error-status {
+    font-size: 60px;
+  }
+
+  .error-icon {
+    width: 56px;
+    height: 56px;
+
+    margin-bottom: 17px;
+
+    border-radius: 15px;
+  }
+
+  .error-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .error-card h1 {
+    font-size: 21px;
+  }
+
+  .error-card p {
+    margin-bottom: 23px;
+
+    font-size: 13px;
+  }
+
+  .error-actions {
+    flex-direction: column;
+
+    width: 100%;
+  }
+
+  .error-action-primary,
+  .error-action-secondary {
+    width: 100%;
+  }
+}
+
+
+/* =========================
+   ERROR PAGE 360px
+========================= */
+
+@media (max-width: 380px) {
+  .error-page {
+    padding: 12px 0;
+  }
+
+  .error-card {
+    padding: 27px 16px;
+  }
+
+  .error-status {
+    font-size: 54px;
+  }
+
+  .error-card h1 {
+    font-size: 19px;
+  }
+}
+
+
+/* =========================
+   REDUCED MOTION
+========================= */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+  .error-action-primary,
+  .error-action-secondary {
+    transition: none;
+  }
+}
+
+/* =========================
+   SCRUM-25 360px FIX
+========================= */
+
+@media (max-width: 600px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app-layout,
+  .app-main,
+  .main-content,
+  .page-transition,
+  .error-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .error-page {
+    padding: 16px 12px;
+  }
+
+  .error-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    padding: 28px 18px;
+
+    box-sizing: border-box;
+  }
+
+  .error-card h1,
+  .error-card p {
+    width: 100%;
+    max-width: 100%;
+
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .error-actions {
+    width: 100%;
+  }
+
+  .error-action-primary,
+  .error-action-secondary {
+    width: 100%;
+    max-width: 100%;
+
+    box-sizing: border-box;
+  }
+}
+
+
+@media (max-width: 380px) {
+  .error-page {
+    padding: 12px 8px;
+  }
+
+  .error-card {
+    padding: 26px 14px;
+  }
+
+  .error-status {
+    font-size: 52px;
+  }
+
+  .error-card h1 {
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  .error-card p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+}
