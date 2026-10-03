@@ -63,6 +63,34 @@ interface AuthenticatedAppProps {
 }
 
 
+interface ProtectedPageProps {
+  user: CurrentUser
+  permission: string
+  children: React.ReactNode
+}
+
+
+function ProtectedPage({
+  user,
+  permission,
+  children,
+}: ProtectedPageProps) {
+  if (
+    !user.permissions.includes(permission)
+  ) {
+    return (
+      <ErrorPage
+        statusCode={403}
+        title="Không có quyền truy cập"
+        message="Bạn không có quyền sử dụng chức năng này. Hãy quay lại trang chủ hoặc chọn một chức năng phù hợp với quyền của bạn."
+      />
+    )
+  }
+
+  return <>{children}</>
+}
+
+
 function AuthenticatedApp({
   user,
   onUserUpdated,
@@ -222,73 +250,108 @@ function AuthenticatedApp({
         <Route
           path="/users"
           element={
-            <UserManagementPage
+            <ProtectedPage
               user={user}
-            />
+              permission="USER_MANAGE"
+            >
+              <UserManagementPage
+                user={user}
+              />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/roles"
           element={
-            <RolePermissionPage
+            <ProtectedPage
               user={user}
-            />
+              permission="ROLE_MANAGE"
+            >
+              <RolePermissionPage
+                user={user}
+              />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/courses"
           element={
-            <PermissionPage
+            <ProtectedPage
               user={user}
               permission="COURSE_MANAGE"
-              title="Khóa học"
-            />
+            >
+              <PermissionPage
+                user={user}
+                permission="COURSE_MANAGE"
+                title="Khóa học"
+              />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/classes"
           element={
-            <PermissionPage
+            <ProtectedPage
               user={user}
               permission="CLASS_MANAGE"
-              title="Lớp học"
-            />
+            >
+              <PermissionPage
+                user={user}
+                permission="CLASS_MANAGE"
+                title="Lớp học"
+              />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/grades"
           element={
-            <PermissionPage
+            <ProtectedPage
               user={user}
               permission="GRADE_VIEW"
-              title="Điểm"
-            />
+            >
+              <PermissionPage
+                user={user}
+                permission="GRADE_VIEW"
+                title="Điểm"
+              />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/tuition"
           element={
-            <PermissionPage
+            <ProtectedPage
               user={user}
               permission="TUITION_VIEW"
-              title="Học phí"
-            />
+            >
+              <PermissionPage
+                user={user}
+                permission="TUITION_VIEW"
+                title="Học phí"
+              />
+            </ProtectedPage>
           }
         />
 
         <Route
           path="/attendance"
           element={
-            <PermissionPage
+            <ProtectedPage
               user={user}
               permission="ATTENDANCE_VIEW"
-              title="Điểm danh"
-            />
+            >
+              <PermissionPage
+                user={user}
+                permission="ATTENDANCE_VIEW"
+                title="Điểm danh"
+              />
+            </ProtectedPage>
           }
         />
 
@@ -307,9 +370,7 @@ function AuthenticatedApp({
             <ErrorPage
               statusCode={404}
               title="Không tìm thấy trang"
-              message={
-                'Trang bạn đang truy cập không tồn tại.'
-              }
+              message="Trang bạn đang tìm kiếm không tồn tại hoặc địa chỉ truy cập không chính xác. Hãy quay lại trang chủ hoặc trang trước để tiếp tục."
             />
           }
         />
