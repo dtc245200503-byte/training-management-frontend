@@ -11,6 +11,8 @@ import {
   useLocation,
 } from 'react-router-dom'
 
+import ChangePasswordPage from './components/ChangePasswordPage'
+import DashboardPage from './components/DashboardPage'
 import ErrorPage from './components/ErrorPage'
 import ForgotPasswordPage from './components/ForgotPasswordPage'
 import Layout from './components/Layout'
@@ -44,23 +46,6 @@ interface ToastState {
 }
 
 
-function Page({
-  title,
-}: {
-  title: string
-}) {
-  return (
-    <div>
-      <h1>{title}</h1>
-
-      <p>
-        Nội dung chức năng đang được phát triển.
-      </p>
-    </div>
-  )
-}
-
-
 interface AuthenticatedAppProps {
   user: CurrentUser
 
@@ -71,6 +56,10 @@ interface AuthenticatedAppProps {
   onLogout: (
     message?: string,
   ) => void
+
+  onShowSuccess: (
+    message: string,
+  ) => void
 }
 
 
@@ -78,6 +67,7 @@ function AuthenticatedApp({
   user,
   onUserUpdated,
   onLogout,
+  onShowSuccess,
 }: AuthenticatedAppProps) {
   const location = useLocation()
 
@@ -223,7 +213,9 @@ function AuthenticatedApp({
         <Route
           path="/"
           element={
-            <Page title="Trang chủ" />
+            <DashboardPage
+              user={user}
+            />
           }
         />
 
@@ -296,6 +288,15 @@ function AuthenticatedApp({
               user={user}
               permission="ATTENDANCE_VIEW"
               title="Điểm danh"
+            />
+          }
+        />
+
+        <Route
+          path="/change-password"
+          element={
+            <ChangePasswordPage
+              onSuccess={onShowSuccess}
             />
           }
         />
@@ -656,6 +657,12 @@ function App() {
           user={user}
           onUserUpdated={setUser}
           onLogout={handleLogout}
+          onShowSuccess={(message) =>
+            showToast(
+              message,
+              'success',
+            )
+          }
         />
       </BrowserRouter>
 

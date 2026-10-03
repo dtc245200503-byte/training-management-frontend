@@ -122,6 +122,49 @@ Promise<void> {
 }
 
 
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const accessToken =
+    localStorage.getItem('access_token')
+
+  const refreshToken =
+    localStorage.getItem('refresh_token')
+
+  if (!accessToken || !refreshToken) {
+    throw new Error(
+      'Phiên đăng nhập đã hết hạn.',
+    )
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/auth/change-password`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+        refresh_token: refreshToken,
+      }),
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail
+        || 'Không thể đổi mật khẩu.',
+    )
+  }
+}
+
+
 export async function forgotPassword(
   email: string,
 ): Promise<void> {
