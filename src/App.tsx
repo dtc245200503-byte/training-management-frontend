@@ -9,6 +9,7 @@ import {
   Routes,
 } from 'react-router-dom'
 
+import { UserManagementPage } from './components/UserManagementPage'
 import ErrorPage from './components/ErrorPage'
 import ForgotPasswordPage from './components/ForgotPasswordPage'
 import Layout from './components/Layout'
@@ -228,16 +229,18 @@ function App() {
             }
           />
 
-          <Route
-            path="/users"
-            element={
-              <PermissionPage
-                user={user}
-                permission="USER_MANAGE"
-                title="Quản lý tài khoản"
-              />
-            }
-          />
+        <Route
+  path="/users"
+  element={
+    <PermissionPage
+      user={user}
+      permission="USER_MANAGE"
+      title="Quản lý tài khoản"
+    >
+      <UserManagementPage user={user} />
+    </PermissionPage>
+  }
+/>
 
           <Route
             path="/roles"
