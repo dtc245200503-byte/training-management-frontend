@@ -17,3 +17,22 @@ export interface LoginResponse {
   token_type: string
   user: AuthUser
 }
+
+export interface RefreshTokenRequest {
+  refresh_token: string
+}
+
+export interface RefreshTokenResponse {
+  message: string
+  access_token: string
+  refresh_token: string
+  token_type: string
+}
+
+export interface LogoutRequest {
+  refresh_token: string
+}
+
+export interface LogoutResponse {
+  message: string
+}

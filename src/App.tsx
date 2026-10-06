@@ -1,29 +1,57 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LoginPage from './components/LoginPage'
 import type { AuthUser, LoginResponse } from './types/auth'
+import {
+  getStoredUser,
+  getAccessToken,
+  getRefreshToken,
+  setSession,
+  clearSession,
+  logout,
+  onAuthFailure,
+} from './services/authService'
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(() => {
-    try {
-      const storedUser = localStorage.getItem('user')
-      const accessToken = localStorage.getItem('access_token')
+    const storedUser = getStoredUser()
+    const accessToken = getAccessToken()
+    const refreshToken = getRefreshToken()
 
-      if (storedUser && accessToken) {
-        return JSON.parse(storedUser) as AuthUser
-      }
-    } catch {
-      localStorage.removeItem('user')
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
+    if (storedUser && accessToken && refreshToken) {
+      return storedUser
     }
+
+    clearSession()
     return null
   })
 
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  // Tự động chuyển về trang Login khi refresh token thất bại hoặc bị thu hồi
+  useEffect(() => {
+    const unsubscribe = onAuthFailure(() => {
+      setUser(null)
+    })
+    return unsubscribe
+  }, [])
+
   const handleLoginSuccess = (authData: LoginResponse) => {
-    localStorage.setItem('access_token', authData.access_token)
-    localStorage.setItem('refresh_token', authData.refresh_token)
-    localStorage.setItem('user', JSON.stringify(authData.user))
+    setSession({
+      access_token: authData.access_token,
+      refresh_token: authData.refresh_token,
+      user: authData.user,
+    })
     setUser(authData.user)
+  }
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    try {
+      await logout()
+    } finally {
+      setUser(null)
+      setLoggingOut(false)
+    }
   }
 
   if (!user) {
@@ -43,6 +71,17 @@ export default function App() {
           <p><strong>Mã định danh (ID):</strong> {user.id}</p>
           <p><strong>Email:</strong> {user.email}</p>
           <p><strong>Trạng thái:</strong> {user.is_active ? 'Đang hoạt động' : 'Tạm khóa'}</p>
+        </div>
+        <div className="dashboard-actions">
+          <button
+            type="button"
+            id="btn-logout"
+            className="logout-btn"
+            onClick={handleLogout}
+            disabled={loggingOut}
+          >
+            {loggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
+          </button>
         </div>
       </main>
     </div>
