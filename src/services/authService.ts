@@ -4,6 +4,16 @@ import type {
   LoginResponse,
   RefreshTokenResponse,
   LogoutResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  VerifyResetTokenRequest,
+  VerifyResetTokenResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  UserProfileResponse,
+  MenuResponse,
 } from '../types/auth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
@@ -21,6 +31,17 @@ interface BackendResponse {
   refresh_token?: string
   token_type?: string
   user?: LoginResponse['user']
+}
+
+function parseErrorMessage(data: BackendResponse, fallback: string): string {
+  if (typeof data.detail === 'string') {
+    return data.detail
+  }
+  if (Array.isArray(data.detail) && data.detail.length > 0) {
+    const firstErr = data.detail[0]
+    return firstErr.msg || fallback
+  }
+  return data.message || fallback
 }
 
 // ==========================================
@@ -70,6 +91,14 @@ export function setSession(data: {
   }
 }
 
+export function updateStoredUser(user: AuthUser): void {
+  try {
+    localStorage.setItem('user', JSON.stringify(user))
+  } catch (err) {
+    console.error('Failed to update stored user:', err)
+  }
+}
+
 export function clearSession(): void {
   try {
     localStorage.removeItem('access_token')
@@ -81,11 +110,14 @@ export function clearSession(): void {
 }
 
 // ==========================================
-// AUTH EVENTS / LISTENERS (SESSION EXPIRED/LOGOUT)
+// AUTH EVENTS / LISTENERS (SESSION EXPIRED/LOGOUT & FORBIDDEN)
 // ==========================================
 
 type AuthFailureListener = () => void
+type ForbiddenListener = (detail: string) => void
+
 const authFailureListeners = new Set<AuthFailureListener>()
+const forbiddenListeners = new Set<ForbiddenListener>()
 
 export function onAuthFailure(listener: AuthFailureListener): () => void {
   authFailureListeners.add(listener)
@@ -103,6 +135,27 @@ export function notifyAuthFailure(): void {
       listener()
     } catch (err) {
       console.error('Error in auth failure listener:', err)
+    }
+  }
+}
+
+export function onForbidden(listener: ForbiddenListener): () => void {
+  forbiddenListeners.add(listener)
+  return () => {
+    forbiddenListeners.delete(listener)
+  }
+}
+
+export function notifyForbidden(detail?: string): void {
+  const msg = detail || 'Bạn không có quyền thực hiện thao tác này (403 Forbidden).'
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth:forbidden', { detail: msg }))
+  }
+  for (const listener of forbiddenListeners) {
+    try {
+      listener(msg)
+    } catch (err) {
+      console.error('Error in forbidden listener:', err)
     }
   }
 }
@@ -158,7 +211,7 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
       throw new Error('Dữ liệu biểu mẫu không hợp lệ.')
     }
 
-    const detailMsg = typeof data.detail === 'string' ? data.detail : 'Đăng nhập thất bại. Vui lòng thử lại.'
+    const detailMsg = parseErrorMessage(data, 'Đăng nhập thất bại. Vui lòng thử lại.')
     throw new Error(detailMsg)
   }
 
@@ -179,7 +232,6 @@ export async function refreshToken(): Promise<string | null> {
     return null
   }
 
-  // Nếu đang có 1 request refresh đang chạy, chia sẻ chung Promise đó để tránh gọi nhiều lần đồng thời
   if (refreshPromise) {
     return refreshPromise
   }
@@ -197,7 +249,6 @@ export async function refreshToken(): Promise<string | null> {
       })
 
       if (!response.ok) {
-        // Refresh token không hợp lệ, đã hết hạn hoặc bị revoke
         clearSession()
         notifyAuthFailure()
         return null
@@ -249,7 +300,6 @@ export async function logout(): Promise<LogoutResponse | null> {
   } catch (error: unknown) {
     console.error('Logout error:', error)
   } finally {
-    // Luôn luôn xóa access_token, refresh_token và user ở client và đưa về Login
     clearSession()
     notifyAuthFailure()
   }
@@ -258,7 +308,7 @@ export async function logout(): Promise<LogoutResponse | null> {
 }
 
 // ==========================================
-// S1-02: FETCH WRAPPER WITH AUTO REFRESH
+// S1-02 & S1-07: FETCH WRAPPER WITH AUTO REFRESH & ERROR HANDLING
 // ==========================================
 
 export async function fetchWithAuth(
@@ -272,10 +322,16 @@ export async function fetchWithAuth(
     headers.set('Authorization', `Bearer ${token}`)
   }
 
-  let response = await fetch(input, {
-    ...init,
-    headers,
-  })
+  let response: Response
+  try {
+    response = await fetch(input, {
+      ...init,
+      headers,
+    })
+  } catch (networkError: unknown) {
+    console.error('Network request failed:', networkError)
+    throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng.', { cause: networkError })
+  }
 
   const urlString =
     typeof input === 'string'
@@ -288,6 +344,23 @@ export async function fetchWithAuth(
     urlString.includes('/api/auth/refresh') ||
     urlString.includes('/api/auth/logout')
 
+  // S1-07: 403 Forbidden - KHÔNG ĐƯỢC refresh token vô ích
+  if (response.status === 403) {
+    let detailMsg = 'Bạn không có quyền thực hiện thao tác này.'
+    try {
+      const clone = response.clone()
+      const data = (await clone.json()) as BackendResponse
+      if (typeof data.detail === 'string') {
+        detailMsg = data.detail
+      }
+    } catch {
+      /* ignore non-json error responses */
+    }
+    notifyForbidden(detailMsg)
+    return response
+  }
+
+  // S1-02: 401 Unauthorized - Thử refresh token
   if (response.status === 401 && !isAuthEndpoint) {
     const newAccessToken = await refreshToken()
     if (newAccessToken) {
@@ -301,4 +374,148 @@ export async function fetchWithAuth(
   }
 
   return response
+}
+
+// ==========================================
+// S1-03: FORGOT & RESET PASSWORD
+// ==========================================
+
+export async function forgotPassword(
+  payload: ForgotPasswordRequest
+): Promise<ForgotPasswordResponse> {
+  const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: payload.email.trim(),
+    }),
+  })
+
+  const data = (await response.json()) as BackendResponse
+  if (!response.ok) {
+    throw new Error(parseErrorMessage(data, 'Không thể gửi yêu cầu đặt lại mật khẩu.'))
+  }
+
+  return data as ForgotPasswordResponse
+}
+
+export async function verifyResetToken(
+  payload: VerifyResetTokenRequest
+): Promise<VerifyResetTokenResponse> {
+  const response = await fetch(`${API_URL}/api/auth/verify-reset-token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: payload.token.trim(),
+    }),
+  })
+
+  const data = (await response.json()) as VerifyResetTokenResponse & BackendResponse
+  if (!response.ok) {
+    throw new Error(parseErrorMessage(data, 'Mã xác nhận không hợp lệ hoặc đã hết hạn.'))
+  }
+
+  return data
+}
+
+export async function resetPassword(
+  payload: ResetPasswordRequest
+): Promise<ResetPasswordResponse> {
+  const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token: payload.token.trim(),
+      new_password: payload.new_password,
+      confirm_password: payload.confirm_password,
+    }),
+  })
+
+  const data = (await response.json()) as BackendResponse
+  if (!response.ok) {
+    throw new Error(parseErrorMessage(data, 'Đặt lại mật khẩu thất bại.'))
+  }
+
+  return data as ResetPasswordResponse
+}
+
+// ==========================================
+// S1-04: CHANGE PASSWORD
+// ==========================================
+
+export async function changePassword(
+  payload: ChangePasswordRequest
+): Promise<ChangePasswordResponse> {
+  const response = await fetchWithAuth(`${API_URL}/api/auth/change-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      old_password: payload.old_password,
+      new_password: payload.new_password,
+      confirm_password: payload.confirm_password,
+    }),
+  })
+
+  const data = (await response.json()) as BackendResponse
+  if (!response.ok) {
+    throw new Error(parseErrorMessage(data, 'Đổi mật khẩu thất bại.'))
+  }
+
+  // Backend revokes all sessions on password change
+  clearSession()
+
+  return data as ChangePasswordResponse
+}
+
+// ==========================================
+// S1-05: CURRENT USER PROFILE (RBAC)
+// ==========================================
+
+export async function getCurrentUserProfile(): Promise<UserProfileResponse> {
+  const response = await fetchWithAuth(`${API_URL}/api/auth/me`)
+
+  if (!response.ok) {
+    const data = (await response.json()) as BackendResponse
+    throw new Error(parseErrorMessage(data, 'Không thể lấy thông tin người dùng.'))
+  }
+
+  const userProfile = (await response.json()) as UserProfileResponse
+
+  // Đồng bộ hóa thông tin user vào localStorage
+  const currentUser = getStoredUser()
+  if (currentUser) {
+    updateStoredUser({
+      ...currentUser,
+      full_name: userProfile.full_name,
+      is_active: userProfile.is_active,
+      is_locked: userProfile.is_locked,
+      roles: userProfile.roles,
+      permissions: userProfile.permissions,
+    })
+  }
+
+  return userProfile
+}
+
+// ==========================================
+// S1-06: MENU BY PERMISSION
+// ==========================================
+
+export async function getMenu(): Promise<MenuResponse> {
+  const response = await fetchWithAuth(`${API_URL}/api/auth/menu`)
+
+  if (!response.ok) {
+    const data = (await response.json()) as BackendResponse
+    throw new Error(parseErrorMessage(data, 'Không thể tải cấu trúc menu.'))
+  }
+
+  return (await response.json()) as MenuResponse
 }

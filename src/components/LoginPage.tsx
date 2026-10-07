@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react'
 import { login } from '../services/authService'
 import type { LoginResponse } from '../types/auth'
+import ForgotPasswordModal from './ForgotPasswordModal'
 
 interface LoginPageProps {
   onLoginSuccess: (authData: LoginResponse) => void
@@ -15,6 +16,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [passwordError, setPasswordError] = useState('')
   const [generalError, setGeneralError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false)
 
   const validateEmail = (val: string): string => {
     const trimmed = val.trim()
@@ -135,9 +137,18 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="login-password" className="form-label">
-              Mật khẩu <span className="required-mark" aria-hidden="true">*</span>
-            </label>
+            <div className="label-with-action">
+              <label htmlFor="login-password" className="form-label">
+                Mật khẩu <span className="required-mark" aria-hidden="true">*</span>
+              </label>
+              <button
+                type="button"
+                className="link-btn link-forgot"
+                onClick={() => setIsForgotPasswordOpen(true)}
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
             <input
               id="login-password"
               name="password"
@@ -176,6 +187,12 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           </button>
         </form>
       </main>
+
+      {/* S1-03: Modal quên / đặt lại mật khẩu */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </div>
   )
 }
