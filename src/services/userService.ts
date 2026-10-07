@@ -330,3 +330,127 @@ export async function removeUserRole(
     )
   }
 }
+
+
+export interface ImportUserRow {
+  row_index: number
+  full_name: string
+  email: string
+  phone: string | null
+  role_input: string
+  role_name: string
+  role_id: number | null
+  is_valid: boolean
+  errors: string[]
+}
+
+
+export interface ImportPreviewResponse {
+  total_rows: number
+  valid_count: number
+  invalid_count: number
+  rows: ImportUserRow[]
+}
+
+
+export interface ImportConfirmUserItem {
+  row_index: number
+  full_name: string
+  email: string
+  phone?: string | null
+  role_id: number
+}
+
+
+export interface ImportSummaryResponse {
+  message: string
+  total_rows: number
+  success_count: number
+  failed_count: number
+  errors: string[]
+  summary_text: string
+}
+
+
+export async function downloadImportTemplate(): Promise<Blob> {
+  const response = await fetch(
+    `${API_URL}/api/users/import-excel/template`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+    },
+  )
+
+  if (!response.ok) {
+    let errorMsg = 'Không thể tải tệp Excel mẫu.'
+    try {
+      const data = await response.json()
+      if (data.detail) {
+        errorMsg = data.detail
+      }
+    } catch {
+      // ignore
+    }
+    throw new Error(errorMsg)
+  }
+
+  return response.blob()
+}
+
+
+export async function previewUsersFromExcel(
+  file: File,
+): Promise<ImportPreviewResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(
+    `${API_URL}/api/users/import-excel/preview`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+      body: formData,
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || 'Không thể kiểm tra tệp Excel.',
+    )
+  }
+
+  return data
+}
+
+
+export async function confirmImportUsers(
+  users: ImportConfirmUserItem[],
+): Promise<ImportSummaryResponse> {
+  const response = await fetch(
+    `${API_URL}/api/users/import-excel/confirm`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+      body: JSON.stringify({ users }),
+    },
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || 'Không thể xác nhận nhập người dùng.',
+    )
+  }
+
+  return data
+}

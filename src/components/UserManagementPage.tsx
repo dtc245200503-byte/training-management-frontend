@@ -19,6 +19,7 @@ import type {
 import CreateUserModal from './CreateUserModal'
 import EditUserModal from './EditUserModal'
 import ErrorPage from './ErrorPage'
+import ImportUserModal from './ImportUserModal'
 import LockUserModal from './LockUserModal'
 import UserRoleModal from './UserRoleModal'
 
@@ -43,6 +44,9 @@ function UserManagementPage({
   const [error, setError] = useState('')
 
   const [showCreateModal, setShowCreateModal] =
+    useState(false)
+
+  const [showImportModal, setShowImportModal] =
     useState(false)
 
   const [editingUser, setEditingUser] =
@@ -180,6 +184,15 @@ function UserManagementPage({
   }
 
 
+  const handleImportSuccess = async (
+    summaryText: string,
+  ) => {
+    setShowImportModal(false)
+    showSuccessToast(summaryText)
+    await loadUsers(1)
+  }
+
+
   const handleUpdated = async () => {
     setEditingUser(null)
 
@@ -262,16 +275,44 @@ function UserManagementPage({
           </p>
         </div>
 
-        <button
-          type="button"
-          className="primary-button"
-          onClick={() => {
-            setSuccessMessage('')
-            setShowCreateModal(true)
-          }}
-        >
-          + Tạo tài khoản
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => {
+              setSuccessMessage('')
+              setShowImportModal(true)
+            }}
+            style={{
+              padding: '12px 18px',
+              borderRadius: '8px',
+              border: '1px solid #d1d5db',
+              backgroundColor: '#ffffff',
+              color: '#374151',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span>📥</span>
+            Nhập từ Excel
+          </button>
+
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => {
+              setSuccessMessage('')
+              setShowCreateModal(true)
+            }}
+          >
+            + Tạo tài khoản
+          </button>
+        </div>
       </div>
 
 
@@ -610,6 +651,17 @@ function UserManagementPage({
             setLockingUser(null)
           }
           onLocked={handleLocked}
+        />
+      )}
+
+
+      {showImportModal && (
+        <ImportUserModal
+          isOpen={showImportModal}
+          onClose={() =>
+            setShowImportModal(false)
+          }
+          onSuccess={handleImportSuccess}
         />
       )}
     </div>
