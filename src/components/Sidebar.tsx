@@ -35,11 +35,41 @@ function renderMenuIcon(iconName?: string | null) {
         </svg>
       )
     case 'book':
-    case 'academic-cap':
       return (
         <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+      )
+    case 'academic-cap':
+      return (
+        <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+        </svg>
+      )
+    case 'calendar':
+      return (
+        <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      )
+    case 'chat':
+    case 'lead':
+      return (
+        <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      )
+    case 'profile':
+    case 'user':
+      return (
+        <svg className="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
       )
     case 'chart':
@@ -67,30 +97,84 @@ function renderMenuIcon(iconName?: string | null) {
 }
 
 export default function Sidebar({ currentPath, onNavigate }: SidebarProps) {
-  const { menuItems, roles } = useAuth()
+  const { menuItems, roles, hasPermission } = useAuth()
 
-  // Fallback nếu chưa tải được menu từ backend
-  const displayItems: MenuItem[] =
-    menuItems.length > 0
-      ? menuItems
-      : [
+  // S1 + S2: Hệ thống menu tổng hợp chuẩn theo RBAC
+  const isAdmin = roles.includes('ADMIN')
+  const canReadUsers = isAdmin || hasPermission('user:read')
+  const canReadLeads = isAdmin || hasPermission('lead:read')
+
+  // Menu các chức năng đào tạo Sprint 2
+  const sprint2Items: MenuItem[] = [
+    {
+      key: 'training-programs',
+      title: 'Chương trình đào tạo',
+      path: '/training-programs',
+      icon: 'academic-cap',
+    },
+    {
+      key: 'subjects',
+      title: 'Quản lý môn học',
+      path: '/subjects',
+      icon: 'book',
+    },
+    {
+      key: 'training-sessions',
+      title: 'Lớp & Phiên đào tạo',
+      path: '/training-sessions',
+      icon: 'calendar',
+    },
+    ...(canReadLeads
+      ? [
           {
-            key: 'dashboard',
-            title: 'Trang chủ',
-            path: '/dashboard',
-            icon: 'dashboard',
+            key: 'leads',
+            title: 'Tư vấn & Tuyển sinh',
+            path: '/leads',
+            icon: 'chat',
           },
-          ...(roles.includes('ADMIN')
-            ? [
-                {
-                  key: 'users',
-                  title: 'Quản lý người dùng',
-                  path: '/users',
-                  icon: 'users',
-                },
-              ]
-            : []),
         ]
+      : []),
+    {
+      key: 'profile',
+      title: 'Hồ sơ cá nhân',
+      path: '/profile',
+      icon: 'profile',
+    },
+  ]
+
+  // Kết hợp backend menu hoặc fallback
+  let displayItems: MenuItem[]
+
+  if (menuItems.length > 0) {
+    // Thêm các mục Sprint 2 nếu backend chưa có trong menuItems
+    displayItems = [...menuItems]
+    for (const s2Item of sprint2Items) {
+      if (!displayItems.some((m) => m.path === s2Item.path)) {
+        displayItems.push(s2Item)
+      }
+    }
+  } else {
+    // Fallback cơ bản khi chưa nạp được menu
+    displayItems = [
+      {
+        key: 'dashboard',
+        title: 'Trang chủ',
+        path: '/dashboard',
+        icon: 'dashboard',
+      },
+      ...(canReadUsers
+        ? [
+            {
+              key: 'users',
+              title: 'Quản lý người dùng',
+              path: '/users',
+              icon: 'users',
+            },
+          ]
+        : []),
+      ...sprint2Items,
+    ]
+  }
 
   return (
     <aside className="app-sidebar" aria-label="Menu điều hướng chính">

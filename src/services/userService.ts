@@ -8,6 +8,7 @@ import type {
   LockUserResponse,
   AssignRolesRequest,
   RoleActionResponse,
+  UserImportResult,
 } from '../types/user'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
@@ -150,4 +151,20 @@ export async function unlockUser(userId: number): Promise<LockUserResponse> {
     method: 'POST',
   })
   return handleResponse<LockUserResponse>(response, 'Không thể mở khóa tài khoản người dùng.')
+}
+
+// ==========================================
+// S2-01: IMPORT USERS EXCEL
+// ==========================================
+
+export async function importUsersExcel(file: File): Promise<UserImportResult> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetchWithAuth(`${API_URL}/api/users/import-excel`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  return handleResponse<UserImportResult>(response, 'Nhập danh sách người dùng từ file Excel thất bại.')
 }

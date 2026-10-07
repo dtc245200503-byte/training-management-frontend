@@ -4,6 +4,12 @@ import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 import DashboardView from './components/DashboardView'
 import UserManagement from './components/UserManagement'
+import ProfileView from './components/ProfileView'
+import TrainingProgramsView from './components/TrainingProgramsView'
+import SubjectsView from './components/SubjectsView'
+import TrainingSessionsView from './components/TrainingSessionsView'
+import LeadsManagementView from './components/LeadsManagementView'
+import PublicConsultationView from './components/PublicConsultationView'
 import ProtectedRoute from './components/ProtectedRoute'
 import ModulePlaceholder from './components/ModulePlaceholder'
 import ChangePasswordModal from './components/ChangePasswordModal'
@@ -51,10 +57,22 @@ function MainLayout() {
     window.location.hash = path
   }
 
+  // S2-08: Public Consultation Access (cho người dùng chưa đăng nhập)
   if (!user) {
+    if (currentPath === '/consultation' || currentPath === '/public/consultation') {
+      return (
+        <PublicConsultationView
+          onBackToLogin={() => handleNavigate('/login')}
+        />
+      )
+    }
+
     return (
       <>
-        <LoginPage onLoginSuccess={loginSuccess} />
+        <LoginPage
+          onLoginSuccess={loginSuccess}
+          onOpenConsultation={() => handleNavigate('/consultation')}
+        />
         {/* Hỗ trợ mở reset modal khi có token từ link email */}
         <ForgotPasswordModal
           isOpen={isResetModalOpen}
@@ -67,15 +85,20 @@ function MainLayout() {
 
   return (
     <div className="app-shell">
-      <Navbar onOpenChangePassword={() => setIsChangePasswordOpen(true)} />
+      <Navbar
+        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
+        onNavigate={handleNavigate}
+      />
 
       <div className="app-body">
         <Sidebar currentPath={currentPath} onNavigate={handleNavigate} />
 
         <main className="app-main-content" role="main">
-          {/* S1-05: RBAC Route Guards for Each Path */}
+          {/* S1-05 & S2: RBAC Route Guards for Each Path */}
           {currentPath === '/' || currentPath === '/dashboard' ? (
             <DashboardView onNavigate={handleNavigate} />
+          ) : currentPath === '/profile' ? (
+            <ProfileView />
           ) : currentPath === '/users' ? (
             <ProtectedRoute requiredPermission="user:read">
               <UserManagement />
@@ -83,6 +106,16 @@ function MainLayout() {
           ) : currentPath === '/roles' ? (
             <ProtectedRoute requiredPermission="role:assign">
               <UserManagement />
+            </ProtectedRoute>
+          ) : currentPath === '/training-programs' ? (
+            <TrainingProgramsView />
+          ) : currentPath === '/subjects' ? (
+            <SubjectsView />
+          ) : currentPath === '/training-sessions' ? (
+            <TrainingSessionsView />
+          ) : currentPath === '/leads' ? (
+            <ProtectedRoute requiredPermission="lead:read">
+              <LeadsManagementView />
             </ProtectedRoute>
           ) : currentPath === '/courses' ? (
             <ProtectedRoute requiredPermission="course:manage">

@@ -7,6 +7,7 @@ import {
 import type { AuthUser, LoginResponse, MenuItem } from '../types/auth'
 import {
   getStoredUser,
+  updateStoredUser,
   getAccessToken,
   getRefreshToken,
   setSession,
@@ -44,11 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // S1-05: Lấy profile và danh sách roles/permissions mới nhất
+      // S1-05 & S2-02 & S2-03: Lấy profile và danh sách roles/permissions mới nhất
       const profile = await getCurrentUserProfile()
       setUser((prev) => ({
         ...(prev || { id: profile.id, email: profile.email, is_active: profile.is_active }),
         full_name: profile.full_name,
+        phone_number: profile.phone_number,
+        avatar_url: profile.avatar_url,
         is_active: profile.is_active,
         is_locked: profile.is_locked,
         roles: profile.roles,
@@ -162,6 +165,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return requiredPermissions.some((p) => permissions.includes(p))
   }
 
+  const updateUser = (updatedFields: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return null
+      const nextUser = { ...prev, ...updatedFields }
+      updateStoredUser(nextUser)
+      return nextUser
+    })
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -177,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginSuccess,
         logout,
         refreshProfile: loadUserDataAndMenu,
+        updateUser,
       }}
     >
       {children}

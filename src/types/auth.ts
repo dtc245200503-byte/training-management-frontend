@@ -7,6 +7,8 @@ export interface AuthUser {
   id: number
   email: string
   full_name?: string | null
+  phone_number?: string | null
+  avatar_url?: string | null
   is_active: boolean
   is_locked?: boolean
   roles?: string[]
@@ -84,6 +86,8 @@ export interface UserProfileResponse {
   id: number
   email: string
   full_name?: string | null
+  phone_number?: string | null
+  avatar_url?: string | null
   is_active: boolean
   is_locked: boolean
   roles: string[]

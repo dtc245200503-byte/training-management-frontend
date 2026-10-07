@@ -1,4 +1,5 @@
 import { useAuth } from '../context/useAuth'
+import { getFullAvatarUrl } from '../utils/avatar'
 
 interface DashboardViewProps {
   onNavigate: (path: string) => void
@@ -11,12 +12,22 @@ export default function DashboardView({ onNavigate }: DashboardViewProps) {
 
   const canManageUsers = hasPermission('user:read')
   const canManageRoles = hasPermission('role:assign')
+  const canReadLeads = hasPermission('lead:read') || roles.includes('ADMIN')
+  const avatarSrc = getFullAvatarUrl(user.avatar_url)
 
   return (
     <div className="dashboard-content">
       <div className="welcome-banner">
         <div className="welcome-avatar" aria-hidden="true">
-          {(user.full_name || user.email).charAt(0).toUpperCase()}
+          {avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt={user.full_name || user.email}
+              className="welcome-avatar-img"
+            />
+          ) : (
+            (user.full_name || user.email).charAt(0).toUpperCase()
+          )}
         </div>
         <div className="welcome-info">
           <h2 className="welcome-title">Xin chào, {user.full_name || user.email}!</h2>
@@ -60,6 +71,15 @@ export default function DashboardView({ onNavigate }: DashboardViewProps) {
               </span>
             </div>
           </div>
+          <div style={{ marginTop: '1rem' }}>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => onNavigate('/profile')}
+            >
+              Chỉnh sửa hồ sơ & ảnh đại diện →
+            </button>
+          </div>
         </div>
 
         {/* Card phân quyền RBAC */}
@@ -82,30 +102,60 @@ export default function DashboardView({ onNavigate }: DashboardViewProps) {
         </div>
       </div>
 
-      {/* Quick shortcuts for role */}
-      {canManageUsers && (
-        <div className="quick-actions-card">
-          <h3 className="card-title">Lối tắt quản trị</h3>
-          <div className="shortcut-buttons">
+      {/* Quick shortcuts for training & administration */}
+      <div className="quick-actions-card">
+        <h3 className="card-title">Lối tắt chức năng hệ thống</h3>
+        <div className="shortcut-buttons">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => onNavigate('/training-programs')}
+          >
+            🎓 Chương trình đào tạo
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => onNavigate('/subjects')}
+          >
+            📖 Quản lý môn học
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => onNavigate('/training-sessions')}
+          >
+            📅 Lớp & Phiên đào tạo
+          </button>
+          {canReadLeads && (
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-outline"
+              onClick={() => onNavigate('/leads')}
+            >
+              💬 Tư vấn & Tuyển sinh
+            </button>
+          )}
+          {canManageUsers && (
+            <button
+              type="button"
+              className="btn btn-outline"
               onClick={() => onNavigate('/users')}
             >
               👥 Quản lý người dùng
             </button>
-            {canManageRoles && (
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => onNavigate('/roles')}
-              >
-                🛡️ Phân quyền vai trò
-              </button>
-            )}
-          </div>
+          )}
+          {canManageRoles && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => onNavigate('/roles')}
+            >
+              🛡️ Phân quyền vai trò
+            </button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

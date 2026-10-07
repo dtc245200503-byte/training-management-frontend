@@ -54,3 +54,21 @@ export interface RoleActionResponse {
   user_id: number
   roles: string[]
 }
+
+// S2-01: Import Users from Excel
+export interface UserImportErrorDetail {
+  row: number
+  email?: string | null
+  reason: string
+}
+
+export interface UserImportResult {
+  total_rows: number
+  imported_count: number
+  skipped_count: number
+  success_count?: number | null
+  failed_count?: number | null
+  errors: UserImportErrorDetail[]
+  imported_users?: string[]
+  imported_emails?: string[]
+}

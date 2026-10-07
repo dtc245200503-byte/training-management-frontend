@@ -14,6 +14,7 @@ import type { UserDetail, UserCreateRequest, UserUpdateRequest } from '../types/
 import type { RoleItem } from '../types/role'
 import { useAuth } from '../context/useAuth'
 import { useNotification } from '../context/useNotification'
+import UserImportModal from './UserImportModal'
 
 const PAGE_SIZE = 10
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -37,6 +38,7 @@ export default function UserManagement() {
 
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
   const [isLockModalOpen, setIsLockModalOpen] = useState(false)
@@ -359,14 +361,25 @@ export default function UserManagement() {
           </p>
         </div>
         {canCreate && (
-          <button
-            type="button"
-            id="btn-create-user"
-            className="btn btn-primary"
-            onClick={openCreateModal}
-          >
-            + Thêm người dùng mới
-          </button>
+          <div className="header-actions-group" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <button
+              type="button"
+              id="btn-import-excel"
+              className="btn btn-outline"
+              onClick={() => setIsImportModalOpen(true)}
+              title="Nhập danh sách người dùng từ file Excel"
+            >
+              📥 Nhập từ Excel
+            </button>
+            <button
+              type="button"
+              id="btn-create-user"
+              className="btn btn-primary"
+              onClick={openCreateModal}
+            >
+              + Thêm người dùng mới
+            </button>
+          </div>
         )}
       </header>
 
@@ -1014,6 +1027,15 @@ export default function UserManagement() {
           </div>
         </div>
       )}
+
+      {/* S2-01: User Excel Import Modal */}
+      <UserImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportSuccess={() => {
+          void fetchUsers()
+        }}
+      />
     </div>
   )
 }

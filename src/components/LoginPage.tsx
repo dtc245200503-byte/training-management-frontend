@@ -5,11 +5,12 @@ import ForgotPasswordModal from './ForgotPasswordModal'
 
 interface LoginPageProps {
   onLoginSuccess: (authData: LoginResponse) => void
+  onOpenConsultation?: () => void
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
+export default function LoginPage({ onLoginSuccess, onOpenConsultation }: LoginPageProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -92,23 +93,29 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
   return (
     <div className="login-page">
-      <main className="login-card" role="main">
-        <header className="login-header">
+      <div className="login-container">
+        <header className="login-brand-header">
           <div className="login-badge">ICTU × CodeGym Việt Nam</div>
-          <h1 className="login-title">HỆ THỐNG QUẢN LÝ ĐÀO TẠO</h1>
-          <p className="login-subtitle">Đăng nhập tài khoản để tiếp tục</p>
+          <h1 className="login-system-title">HỆ THỐNG QUẢN LÝ ĐÀO TẠO</h1>
+          <p className="login-system-subtitle">Training Management System</p>
         </header>
 
-        {generalError && (
-          <div
-            id="login-general-error"
-            className="login-alert login-alert-error"
-            role="alert"
-            aria-live="polite"
-          >
-            {generalError}
+        <main className="login-card" role="main">
+          <div className="login-card-header">
+            <h2 className="login-card-title">ĐĂNG NHẬP</h2>
+            <p className="login-card-subtitle">Vui lòng nhập thông tin tài khoản của bạn</p>
           </div>
-        )}
+
+          {generalError && (
+            <div
+              id="login-general-error"
+              className="login-alert login-alert-error"
+              role="alert"
+              aria-live="polite"
+            >
+              {generalError}
+            </div>
+          )}
 
         <form onSubmit={handleSubmit} className="login-form" noValidate>
           <div className="form-group">
@@ -185,8 +192,23 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
               'Đăng nhập'
             )}
           </button>
+
+          {/* S2-08: Public Consultation link */}
+          {onOpenConsultation && (
+            <div className="login-consultation-section">
+              <span>Bạn cần tìm hiểu thêm khóa học? </span>
+              <button
+                type="button"
+                className="link-btn link-consultation"
+                onClick={onOpenConsultation}
+              >
+                Đăng ký nhận tư vấn ngay →
+              </button>
+            </div>
+          )}
         </form>
-      </main>
+        </main>
+      </div>
 
       {/* S1-03: Modal quên / đặt lại mật khẩu */}
       <ForgotPasswordModal
