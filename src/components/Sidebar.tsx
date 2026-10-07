@@ -18,6 +18,13 @@ interface SidebarProps {
 
 
 const menuIcons: Record<string, ReactNode> = {
+  '/leads': <svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" /><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" /><path d="M20 8v6M17 11h6" /></svg>,
+  '/profile': (
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="7" r="4" />
+      <path d="M4 21v-2a8 8 0 0 1 16 0v2" />
+    </svg>
+  ),
   '/': (
     <svg viewBox="0 0 24 24">
       <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -57,6 +64,13 @@ const menuIcons: Record<string, ReactNode> = {
       <path d="M9 21v-6h6v6" />
       <path d="M9 9h.01" />
       <path d="M15 9h.01" />
+    </svg>
+  ),
+
+  '/subjects': (
+    <svg viewBox="0 0 24 24">
+      <path d="M4 3h6a3 3 0 0 1 3 3v15a4 4 0 0 0-4-3H4z" />
+      <path d="M13 6a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 3" />
     </svg>
   ),
 
@@ -206,7 +220,7 @@ function Sidebar({
 
         <nav className="sidebar-menu">
           <span className="sidebar-section-title">
-            MENU CHÍNH
+            ĐIỀU HƯỚNG CHÍNH
           </span>
 
           {visibleMenuItems.map((item) => (

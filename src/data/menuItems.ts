@@ -6,6 +6,10 @@ export const menuItems: MenuItem[] = [
     path: '/',
   },
   {
+    name: 'Hồ sơ cá nhân',
+    path: '/profile',
+  },
+  {
     name: 'Quản lý tài khoản',
     path: '/users',
     permission: 'USER_MANAGE',
@@ -16,10 +20,16 @@ export const menuItems: MenuItem[] = [
     permission: 'ROLE_MANAGE',
   },
   {
-    name: 'Khóa học',
+    name: 'Chương trình đào tạo',
     path: '/courses',
-    permission: 'COURSE_MANAGE',
+    permission: 'CURRICULUM_MANAGE',
   },
+  {
+    name: 'Môn học',
+    path: '/subjects',
+    permission: 'SUBJECT_MANAGE',
+  },
+  { name: 'Khách hàng tiềm năng', path: '/leads', permission: 'LEAD_MANAGE' },
   {
     name: 'Lớp học',
     path: '/classes',

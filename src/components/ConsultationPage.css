@@ -1,0 +1,43 @@
+.consultation-page { min-height: 100vh; background: linear-gradient(135deg, #f5f9ff 20%, #eaf2ff 100%); color: #1a2e4f; padding: 0 5%; }
+.consultation-header { max-width: 1160px; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 24px 0; }
+.consultation-brand { display: flex; gap: 12px; align-items: center; text-decoration: none; color: #163c70; }
+.consultation-brand > span { display: grid; place-items: center; width: 44px; height: 44px; background: #235ddd; border-radius: 12px; color: white; font-size: 26px; font-weight: bold; }
+.consultation-brand strong { display: block; font-size: 20px; letter-spacing: 1px; }
+.consultation-brand small { display: block; margin-top: 4px; font-size: 12px; color: #667b98; }
+.consultation-login { color: #235ddd; font-weight: 600; text-decoration: none; }
+.consultation-login:hover { text-decoration: underline; }
+.consultation-content { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; max-width: 1100px; margin: 30px auto; }
+.consultation-intro { padding-top: 72px; }
+.consultation-eyebrow { font-size: 13px; font-weight: 700; color: #235ddd; letter-spacing: 1.5px; }
+.consultation-intro h1 { margin: 18px 0 24px; font-size: clamp(30px, 3.4vw, 46px); line-height: 1.2; letter-spacing: -1px; }
+.consultation-intro > p { color: #59708e; line-height: 1.8; }
+.consultation-promise { display: flex; gap: 16px; margin: 32px 0; padding: 22px; background: #fff; border: 1px solid #dce8fa; border-radius: 16px; }
+.consultation-promise > span { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: #ddf8ed; color: #087b52; font-size: 20px; }
+.consultation-promise p { margin: 8px 0 0; color: #59708e; line-height: 1.6; }
+.consultation-intro .consultation-privacy { font-size: 13px; }
+.consultation-card { padding: 32px; border-radius: 22px; background: #fff; border: 1px solid #e1e9f5; box-shadow: 0 16px 50px #1d4ca00c; min-width: 0; }
+.consultation-card h2 { margin: 0; font-size: 26px; }
+.consultation-subtitle { font-size: 14px; line-height: 1.6; color: #63738b; margin: 12px 0 24px; }
+.consultation-fields { padding: 0; margin: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.consultation-fields label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.consultation-fields label small { font-weight: 400; color: #72819a; }
+.consultation-fields input, .consultation-fields textarea { border: 1px solid #cdd8e8; padding: 12px 14px; border-radius: 9px; width: 100%; font: inherit; font-size: 15px; color: #1a2e4f; background: #fff; }
+.consultation-fields textarea { resize: vertical; min-height: 92px; }
+.consultation-fields input:focus, .consultation-fields textarea:focus { outline: 3px solid #dce9ff; border-color: #3c75ea; }
+.consultation-verification { padding: 16px; border-radius: 12px; background: #f3f7fd; }
+.consultation-verification p { margin: 10px 0; line-height: 1.5; }
+.consultation-refresh { margin-top: 12px; background: transparent; color: #245bdc; border: 0; padding: 0; font: inherit; font-size: 13px; cursor: pointer; text-decoration: underline; }
+.consultation-error { background: #fff1f1; color: #b32939; padding: 12px; border-radius: 8px; line-height: 1.5; font-size: 14px; }
+.consultation-submit { width: 100%; border: 0; border-radius: 10px; padding: 15px; background: #245ddd; color: #fff; font: inherit; font-weight: 700; margin-top: 20px; cursor: pointer; }
+.consultation-submit:hover { background: #194ec4; }
+.consultation-page button:disabled { opacity: .55; cursor: not-allowed; }
+.consultation-form-note { text-align: center; color: #6b7c96; font-size: 12px; line-height: 1.5; }
+.consultation-trap { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.consultation-success { text-align: center; padding: 24px 0; outline: none; }
+.consultation-success-icon { display: grid; place-items: center; width: 72px; height: 72px; margin: 0 auto 24px; border-radius: 50%; background: #ddf8ed; color: #087b52; font-size: 40px; }
+.consultation-success p { color: #59708e; line-height: 1.8; }
+.consultation-contact-promise { padding: 18px; margin: 24px 0; border-radius: 12px; background: #edf7ff; color: #154b91; font-weight: 600; line-height: 1.6; }
+.consultation-footer { max-width: 1100px; text-align: center; font-size: 12px; color: #6b7c96; padding: 20px 0 28px; margin: auto; }
+.consultation-login-link { display: block; text-align: center; margin-top: 22px; color: #245ddd; text-decoration: none; font-size: 14px; }
+@media (max-width: 900px) { .consultation-content { grid-template-columns: 1fr; gap: 24px; max-width: 600px; margin-top: 16px; } .consultation-intro { padding-top: 12px; } .consultation-intro h1 br { display: none; } .consultation-promise { margin: 20px 0; } }
+@media (max-width: 480px) { .consultation-page { padding: 0 16px; } .consultation-header { align-items: flex-start; padding: 20px 0; } .consultation-brand small { display: none; } .consultation-header .consultation-login { max-width: 100px; font-size: 13px; text-align: right; line-height: 1.5; } .consultation-card { padding: 24px 18px; } .consultation-card h2 { font-size: 24px; } .consultation-promise { padding: 16px; } }

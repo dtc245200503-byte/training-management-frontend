@@ -20,6 +20,7 @@ interface LayoutProps {
 
 const roleNames: Record<string, string> = {
   ADMIN: 'Quản trị viên',
+  MANAGER: 'Quản lý đào tạo',
   INSTRUCTOR: 'Giảng viên',
   STUDENT: 'Học viên',
   ACCOUNTANT: 'Kế toán',
@@ -54,7 +55,7 @@ function Layout({
 
 
   const displayedRoles = user.roles
-    .map((role) => roleNames[role] || role)
+    .map((role) => roleNames[role] || 'Vai trò khác')
     .join(', ')
 
 
@@ -146,7 +147,9 @@ function Layout({
 
           <div className="topbar-user">
             <div className="topbar-avatar">
-              {avatarLetter}
+              {user.avatar_thumbnail_url || user.avatar_url
+                ? <img src={user.avatar_thumbnail_url || user.avatar_url || ''} alt="Ảnh đại diện của bạn" />
+                : avatarLetter}
             </div>
 
             <div className="topbar-user-info">

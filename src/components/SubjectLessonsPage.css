@@ -1,0 +1,31 @@
+.lesson-back { display: inline-block; margin-bottom: 16px; color: #245bdc; text-decoration: none; }
+.lesson-header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.lesson-capacity { margin: 20px 0 12px; color: #52647d; }
+.lesson-note { padding: 14px 18px; background: #eff6ff; border-radius: 12px; color: #1e4293; }
+.lesson-list { padding: 0; list-style: none; display: grid; gap: 16px; }
+.lesson-card, .lesson-empty { background: white; border: 1px solid #dce5ef; border-radius: 16px; padding: 24px; }
+.lesson-card-heading { display: flex; align-items: baseline; gap: 16px; }
+.lesson-number { flex-shrink: 0; background: #eaf1ff; color: #1b4dac; font-weight: 700; padding: 6px 12px; border-radius: 8px; }
+.lesson-card h2 { font-size: 20px; margin: 0; overflow-wrap: anywhere; }
+.lesson-card h3 { font-size: 15px; margin: 20px 0 8px; color: #586b83; }
+.lesson-objectives { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 20px; line-height: 1.65; }
+.lesson-form { display: flex; flex-direction: column; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.lesson-form label { font-weight: 600; margin-top: 4px; }
+.lesson-form input, .lesson-form textarea, .lesson-form select { width: 100%; padding: 12px; border: 1px solid #ccd6e4; border-radius: 8px; font: inherit; box-sizing: border-box; background: white; color: #182b47; }
+.lesson-form textarea { resize: vertical; }
+.lesson-source-pages { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.lesson-source-pages span { margin-right: auto; }
+.lesson-source-pages button { padding: 7px 10px; background: #eff5ff; color: #245bdc; border: 1px solid #cbdafa; border-radius: 6px; }
+.lesson-preview { border: 1px solid #dce5ef; border-radius: 10px; padding: 14px; background: #f8faff; }
+.lesson-preview h3 { margin: 0 0 12px; font-size: 16px; }
+.lesson-preview ol { max-height: 220px; overflow-y: auto; padding-left: 24px; margin: 0; }
+.lesson-preview li, .lesson-preview p { overflow-wrap: anywhere; }
+.lesson-preview li p { white-space: pre-wrap; margin-top: 6px; }
+.lesson-dialog { max-width: 640px; }
+@media (max-width: 640px) {
+  .lesson-header-actions { width: 100%; }
+  .lesson-header-actions button { flex: 1; }
+  .lesson-card { padding: 16px; }
+  .lesson-card-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .lesson-card h2 { font-size: 18px; }
+}

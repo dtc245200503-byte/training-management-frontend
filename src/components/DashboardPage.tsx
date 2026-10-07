@@ -30,6 +30,7 @@ interface QuickAction {
 
 
 const quickActions: QuickAction[] = [
+  { title: 'Khách hàng tiềm năng', description: 'Theo dõi thông tin đăng ký tư vấn và khách hàng tuyển sinh.', path: '/leads', permission: 'LEAD_MANAGE', icon: <svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" /><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" /><path d="M20 8v6M17 11h6" /></svg> },
   {
     title: 'Quản lý người dùng',
     description: 'Quản lý tài khoản và thông tin người dùng.',
@@ -57,16 +58,23 @@ const quickActions: QuickAction[] = [
     ),
   },
   {
-    title: 'Khóa học',
-    description: 'Theo dõi và quản lý các khóa học.',
+    title: 'Chương trình đào tạo',
+    description: 'Quản lý danh mục chương trình có sẵn để mở lớp.',
     path: '/courses',
-    permission: 'COURSE_MANAGE',
+    permission: 'CURRICULUM_MANAGE',
     icon: (
       <svg viewBox="0 0 24 24">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
       </svg>
     ),
+  },
+  {
+    title: 'Môn học',
+    description: 'Quản lý môn học và dùng chung giữa các chương trình.',
+    path: '/subjects',
+    permission: 'SUBJECT_MANAGE',
+    icon: <svg viewBox="0 0 24 24"><path d="M4 3h6a3 3 0 0 1 3 3v15a4 4 0 0 0-4-3H4z" /><path d="M13 6a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 3" /></svg>,
   },
   {
     title: 'Lớp học',

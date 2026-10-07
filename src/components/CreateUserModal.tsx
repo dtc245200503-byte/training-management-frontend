@@ -1,3 +1,4 @@
+import ChoiceSelect from './ChoiceSelect'
 import {
   useState,
 } from 'react'
@@ -170,7 +171,7 @@ function CreateUserModal({
               Vai trò
             </label>
 
-            <select
+            <ChoiceSelect
               id="create-role"
               value={roleId}
               onChange={(event) =>
@@ -213,7 +214,7 @@ function CreateUserModal({
               <option value="8">
                 Ban quản lý
               </option>
-            </select>
+            </ChoiceSelect>
           </div>
 
 

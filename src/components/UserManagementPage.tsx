@@ -1,7 +1,10 @@
+import ChoiceSelect from './ChoiceSelect'
 import {
   useEffect,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getCurrentUser } from '../services/authService'
 
 import {
   getUsers,
@@ -26,12 +29,15 @@ import UserRoleModal from './UserRoleModal'
 
 interface UserManagementPageProps {
   user: CurrentUser
+  onCurrentUserUpdated: (user: CurrentUser) => void
 }
 
 
 function UserManagementPage({
   user,
+  onCurrentUserUpdated,
 }: UserManagementPageProps) {
+  const navigate = useNavigate()
   const [users, setUsers] = useState<UserItem[]>([])
   const [search, setSearch] = useState('')
   const [roleId, setRoleId] = useState('')
@@ -205,6 +211,7 @@ function UserManagementPage({
 
 
   const handleRolesUpdated = async () => {
+    const updatedOwnRoles = roleUser?.user_id === user.user_id
     setRoleUser(null)
 
     showSuccessToast(
@@ -212,6 +219,14 @@ function UserManagementPage({
     )
 
     await loadUsers(page)
+    if (updatedOwnRoles) {
+      try {
+        const updated = await getCurrentUser(localStorage.getItem('access_token') || '')
+        onCurrentUserUpdated(updated)
+      } catch {
+        setError('Vai trò đã được lưu. Vui lòng tải lại trang để cập nhật thông tin tài khoản đang đăng nhập.')
+      }
+    }
   }
 
 
@@ -340,7 +355,8 @@ function UserManagementPage({
           placeholder="Tìm tên, email, số điện thoại..."
         />
 
-        <select
+        <ChoiceSelect
+          aria-label="Lọc theo vai trò"
           value={roleId}
           onChange={(event) =>
             setRoleId(event.target.value)
@@ -381,9 +397,10 @@ function UserManagementPage({
           <option value="8">
             Ban quản lý
           </option>
-        </select>
+        </ChoiceSelect>
 
-        <select
+        <ChoiceSelect
+          aria-label="Lọc theo trạng thái tài khoản"
           value={status}
           onChange={(event) =>
             setStatus(event.target.value)
@@ -400,7 +417,7 @@ function UserManagementPage({
           <option value="locked">
             Đã khóa
           </option>
-        </select>
+        </ChoiceSelect>
 
         <button
           type="button"
@@ -513,6 +530,10 @@ function UserManagementPage({
                         className="edit-button"
                         onClick={() => {
                           setSuccessMessage('')
+                          if (item.user_id === user.user_id) {
+                            navigate('/profile')
+                            return
+                          }
                           setEditingUser(item)
                         }}
                       >
@@ -523,12 +544,13 @@ function UserManagementPage({
                         <button
                           type="button"
                           className="edit-button"
+                          title={item.user_id === user.user_id && !user.roles.includes('ADMIN') ? 'Xem vai trò của bạn' : 'Cập nhật vai trò'}
                           onClick={() => {
                             setSuccessMessage('')
                             setRoleUser(item)
                           }}
                         >
-                          Vai trò
+                          {item.user_id === user.user_id && !user.roles.includes('ADMIN') ? 'Xem vai trò' : 'Vai trò'}
                         </button>
                       )}
 

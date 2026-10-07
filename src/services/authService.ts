@@ -215,8 +215,11 @@ export async function resetPassword(
 
   if (!response.ok) {
     throw new Error(
-      data.detail ||
-        'Không thể đặt lại mật khẩu.',
+      response.status === 422
+        ? 'Thông tin đặt lại mật khẩu không hợp lệ. Vui lòng kiểm tra liên kết và mật khẩu mới.'
+        : typeof data.detail === 'string' && data.detail !== 'Not Found'
+          ? data.detail
+          : 'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.',
     )
   }
 }

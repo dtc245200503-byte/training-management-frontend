@@ -17,7 +17,14 @@ import ErrorPage from './components/ErrorPage'
 import ForgotPasswordPage from './components/ForgotPasswordPage'
 import Layout from './components/Layout'
 import LoginPage from './components/LoginPage'
+import ConsultationPage from './components/ConsultationPage'
+import LeadPage from './components/LeadPage'
 import PermissionPage from './components/PermissionPage'
+import ProfilePage from './components/ProfilePage'
+import TrainingProgramPage from './components/TrainingProgramPage'
+import SubjectPage from './components/SubjectPage'
+import SubjectLessonsPage from './components/SubjectLessonsPage'
+import CurriculumPage from './components/CurriculumPage'
 import ResetPasswordPage from './components/ResetPasswordPage'
 import RolePermissionPage from './components/RolePermissionPage'
 import Toast from './components/Toast'
@@ -239,10 +246,28 @@ function AuthenticatedApp({
         }
       >
         <Route
+          path="/subjects"
+          element={<ProtectedPage user={user} permission="SUBJECT_MANAGE"><SubjectPage canManagePrograms={user.permissions.includes('CURRICULUM_MANAGE')} onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')} /></ProtectedPage>}
+        />
+        <Route path="/leads" element={<ProtectedPage user={user} permission="LEAD_MANAGE"><LeadPage canDelete={user.roles.includes('TRAINING_MANAGER')} onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')} /></ProtectedPage>} />
+        <Route path="/subjects/:subjectId/lessons" element={<ProtectedPage user={user} permission="SUBJECT_MANAGE"><SubjectLessonsPage onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')} /></ProtectedPage>} />
+        <Route path="/courses/:curriculumId/curriculum" element={<ProtectedPage user={user} permission="CURRICULUM_MANAGE"><CurriculumPage onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')} /></ProtectedPage>} />
+        <Route
           path="/"
           element={
             <DashboardPage
               user={user}
+            />
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProfilePage
+              onUserUpdated={onUserUpdated}
+              onSuccess={onShowSuccess}
+              onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')}
             />
           }
         />
@@ -256,6 +281,7 @@ function AuthenticatedApp({
             >
               <UserManagementPage
                 user={user}
+                onCurrentUserUpdated={onUserUpdated}
               />
             </ProtectedPage>
           }
@@ -280,13 +306,9 @@ function AuthenticatedApp({
           element={
             <ProtectedPage
               user={user}
-              permission="COURSE_MANAGE"
+              permission="CURRICULUM_MANAGE"
             >
-              <PermissionPage
-                user={user}
-                permission="COURSE_MANAGE"
-                title="Khóa học"
-              />
+              <TrainingProgramPage onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')} />
             </ProtectedPage>
           }
         />
@@ -449,6 +471,11 @@ function App() {
     const params = new URLSearchParams(
       window.location.search,
     )
+
+    if (window.location.pathname === '/dang-ky-tu-van') {
+      setLoading(false)
+      return
+    }
 
     const token = params.get('token')
 
@@ -654,6 +681,10 @@ function App() {
     />
   ) : null
 
+
+  if (window.location.pathname === '/dang-ky-tu-van') {
+    return <ConsultationPage />
+  }
 
   if (loading) {
     return <p>Đang tải...</p>

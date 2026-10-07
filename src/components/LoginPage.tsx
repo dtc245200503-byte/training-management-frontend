@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import './ConsultationPage.css'
 
 
 interface LoginPageProps {
@@ -222,6 +223,7 @@ function LoginPage({
               : 'Đăng nhập'}
           </button>
         </form>
+        <a className="consultation-login-link" href="/dang-ky-tu-van">Chưa biết chọn khóa học? Đăng ký tư vấn</a>
       </div>
     </div>
   )

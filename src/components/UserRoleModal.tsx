@@ -85,6 +85,8 @@ function UserRoleModal({
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const isOwnAccount = currentUser.user_id === user.user_id
+  const isReadOnly = isOwnAccount && !currentUser.roles.includes('ADMIN')
 
 
   useEffect(() => {
@@ -123,6 +125,7 @@ function UserRoleModal({
   const handleRoleChange = (
     roleId: number,
   ) => {
+    if (isReadOnly || saving || (isOwnAccount && roles.find(role => role.role_id === roleId)?.role_name === 'ADMIN')) return
     setSelectedRoleIds((current) => {
       if (current.includes(roleId)) {
         return current.filter(
@@ -139,6 +142,11 @@ function UserRoleModal({
 
 
   const handleSave = async () => {
+    if (isReadOnly || saving || loading) return
+    if (isOwnAccount && originalRoleIds.includes(1) && !selectedRoleIds.includes(1)) {
+      setError('Bạn không thể tự thu hồi vai trò Quản trị viên của chính mình.')
+      return
+    }
     setError('')
 
     if (selectedRoleIds.length === 0) {
@@ -193,13 +201,13 @@ function UserRoleModal({
 
   return (
     <div className="modal-overlay">
-      <div className="user-modal">
+      <div className="user-modal" role="dialog" aria-modal="true" aria-labelledby="user-role-title">
         <div className="modal-header">
           <div>
-            <h2>Quản lý vai trò</h2>
+            <h2 id="user-role-title">{isOwnAccount ? 'Vai trò của tôi' : 'Quản lý vai trò'}</h2>
 
             <p>
-              Gán hoặc thu hồi vai trò của{' '}
+              {isReadOnly ? 'Xem vai trò của ' : 'Gán hoặc thu hồi vai trò của '}
               <strong>
                 {user.full_name}
               </strong>.
@@ -209,6 +217,7 @@ function UserRoleModal({
           <button
             type="button"
             className="modal-close-button"
+            aria-label="Đóng hộp thoại"
             onClick={onClose}
             disabled={saving}
           >
@@ -230,15 +239,6 @@ function UserRoleModal({
                     role.role_id,
                   )
 
-                const isOwnAdminRole =
-                  currentUser.user_id
-                    === user.user_id
-                  && role.role_name
-                    === 'ADMIN'
-                  && originalRoleIds.includes(
-                    role.role_id,
-                  )
-
                 return (
                   <label
                     key={role.role_id}
@@ -249,7 +249,8 @@ function UserRoleModal({
                       checked={checked}
                       disabled={
                         saving
-                        || isOwnAdminRole
+                        || isReadOnly
+                        || (isOwnAccount && role.role_name === 'ADMIN')
                       }
                       onChange={() =>
                         handleRoleChange(
@@ -267,14 +268,11 @@ function UserRoleModal({
             </div>
 
 
-            {currentUser.user_id
-              === user.user_id
-              && originalRoleIds.includes(1)
-              && (
+            {isOwnAccount && (
                 <p className="role-warning">
-                  Bạn không thể tự thu hồi
-                  vai trò Quản trị viên của
-                  chính mình.
+                  {isReadOnly
+                    ? 'Bạn có thể xem nhưng không được tự thay đổi vai trò. Nếu cần thay đổi, hãy nhờ quản trị viên thực hiện.'
+                    : 'Bạn có thể sửa các vai trò khác của mình, nhưng không được tự thu hồi vai trò Quản trị viên.'}
                 </p>
               )}
 
@@ -293,10 +291,10 @@ function UserRoleModal({
                 onClick={onClose}
                 disabled={saving}
               >
-                Hủy
+                {isReadOnly ? 'Đóng' : 'Hủy'}
               </button>
 
-              <button
+              {!isReadOnly && <button
                 type="button"
                 className="primary-button"
                 onClick={handleSave}
@@ -305,7 +303,7 @@ function UserRoleModal({
                 {saving
                   ? 'Đang lưu...'
                   : 'Lưu vai trò'}
-              </button>
+              </button>}
             </div>
           </>
         )}
