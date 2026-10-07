@@ -117,26 +117,43 @@ body {
 /* =========================
    LOGIN
 ========================= */
-
 .login-page {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 16px;
+  background-color: #1687db;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
 
-  background:
-    linear-gradient(
-      135deg,
-      #eff6ff 0%,
-      #dbeafe 50%,
-      #eef2ff 100%
-    );
+.login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url('/login-background.jpg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 430px;
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
   padding: 38px 34px;
   background: #ffffff;
   border: 1px solid #dbeafe;

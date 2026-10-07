@@ -1,0 +1,105 @@
+.login-card.login-card--welcome {
+  max-width: 440px;
+  padding: 32px 36px 26px;
+  background: rgba(248, 252, 255, .94);
+  border: 1px solid rgba(255, 255, 255, .85);
+  border-radius: 24px;
+  box-shadow: 0 24px 64px rgba(9, 48, 117, .22), inset 0 1px 0 #fff;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  scrollbar-width: thin;
+  scrollbar-color: #b4cce7 transparent;
+}
+
+.login-heading { text-align: center; }
+
+.login-heading-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  color: #175cc0;
+  background: linear-gradient(145deg, #e3f4ff, #d7eaff);
+  border: 1px solid #cee4f7;
+  border-radius: 16px;
+}
+
+.login-card--welcome .login-eyebrow {
+  margin: 0 0 8px;
+  color: #426387;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.login-card--welcome h1 {
+  color: #153d72;
+  font-size: 30px;
+  line-height: 1.25;
+  letter-spacing: -.5px;
+}
+
+.login-card--welcome .login-subtitle {
+  margin: 8px 0 26px;
+  color: #5c7491;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.login-card--welcome .login-field { gap: 8px; margin-bottom: 18px; }
+.login-card--welcome .login-field label { color: #2f4c6c; font-size: 14px; }
+
+.login-card--welcome .login-field input {
+  min-height: 48px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, .96);
+  border-color: #c8d9eb;
+  border-radius: 11px;
+  color: #173b62;
+  font-size: 16px;
+}
+
+.login-card--welcome .login-field input::placeholder { color: #7b8fa7; font-size: 14px; }
+.login-card--welcome .password-input-wrapper input { padding-right: 48px; }
+.login-card--welcome .login-field input:hover { border-color: #8eb5e1; }
+.login-card--welcome .login-field input:focus { border-color: #2672d1; box-shadow: 0 0 0 3px #2672d11a; }
+.login-card--welcome .password-toggle-button { color: #53799d; }
+.login-card--welcome .forgot-password-row { margin-top: -2px; margin-bottom: 22px; }
+.login-card--welcome .forgot-password-button { color: #1d62b6; font-size: 13px; }
+
+.login-card--welcome .login-button {
+  min-height: 48px;
+  border: 1px solid #1b60bc;
+  border-radius: 11px;
+  background: linear-gradient(110deg, #206dd1, #1553b1);
+  box-shadow: 0 6px 16px #165bb52b;
+  font-size: 15px;
+  letter-spacing: .15px;
+}
+
+.login-card--welcome .login-button:hover { background: linear-gradient(110deg, #195fbe, #124899); }
+.login-card--welcome .login-consultation { margin-top: 24px; padding-top: 19px; border-top: 1px solid #d6e5f1; text-align: center; }
+.login-consultation p { margin: 0; color: #627c97; font-size: 12px; line-height: 1.5; }
+.login-consultation .consultation-login-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; color: #195fac; font-size: 14px; font-weight: 700; }
+.login-consultation .consultation-login-link:hover { color: #123f79; text-decoration: underline; }
+
+.login-card--welcome button:focus-visible,
+.login-card--welcome a:focus-visible { outline: 3px solid #2b73cb; outline-offset: 3px; }
+
+@media (max-width: 480px) {
+  .login-card.login-card--welcome { padding: 26px 22px 22px; border-radius: 20px; }
+  .login-card--welcome h1 { font-size: 28px; }
+  .login-card--welcome .login-eyebrow { letter-spacing: .75px; }
+}
+
+@media (max-height: 600px) {
+  .login-card.login-card--welcome { padding-top: 24px; }
+  .login-heading-icon { width: 44px; height: 44px; margin-bottom: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card.login-card--welcome { animation: none; }
+}

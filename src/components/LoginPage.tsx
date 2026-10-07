@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import './ConsultationPage.css'
+import './LoginPage.css'
 
 
 interface LoginPageProps {
@@ -50,12 +51,21 @@ function LoginPage({
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <h1>Hệ thống quản lý đào tạo</h1>
+      <div className="login-card login-card--welcome">
+        <div className="login-heading">
+          <span className="login-heading-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m2 9 10-5 10 5-10 5L2 9Z" />
+              <path d="M6 11v6c3 3 9 3 12 0v-6M22 9v6" />
+            </svg>
+          </span>
+          <p className="login-eyebrow">Hệ thống quản lý đào tạo</p>
+          <h1>Đăng nhập</h1>
 
-        <p className="login-subtitle">
-          Đăng nhập vào hệ thống
-        </p>
+          <p className="login-subtitle">
+            Chào mừng bạn quay lại
+          </p>
+        </div>
 
 
         <form onSubmit={handleSubmit}>
@@ -67,6 +77,7 @@ function LoginPage({
             <input
               id="email"
               type="email"
+              autoComplete="username"
               value={email}
               onChange={(event) =>
                 setEmail(event.target.value)
@@ -85,6 +96,7 @@ function LoginPage({
             <div className="password-input-wrapper">
               <input
                 id="password"
+                autoComplete="current-password"
                 type={
                   showPassword
                     ? 'text'
@@ -207,7 +219,7 @@ function LoginPage({
 
 
           {error && (
-            <p className="login-error">
+            <p className="login-error" role="alert">
               {error}
             </p>
           )}
@@ -223,7 +235,10 @@ function LoginPage({
               : 'Đăng nhập'}
           </button>
         </form>
-        <a className="consultation-login-link" href="/dang-ky-tu-van">Chưa biết chọn khóa học? Đăng ký tư vấn</a>
+        <div className="login-consultation">
+          <p>Bạn cần tìm khóa học phù hợp?</p>
+          <a className="consultation-login-link" href="/dang-ky-tu-van">Đăng ký tư vấn <span aria-hidden="true">→</span></a>
+        </div>
       </div>
     </div>
   )

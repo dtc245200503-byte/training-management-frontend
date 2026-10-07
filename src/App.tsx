@@ -19,6 +19,7 @@ import Layout from './components/Layout'
 import LoginPage from './components/LoginPage'
 import ConsultationPage from './components/ConsultationPage'
 import LeadPage from './components/LeadPage'
+import ClassPage from './components/ClassPage'
 import PermissionPage from './components/PermissionPage'
 import ProfilePage from './components/ProfilePage'
 import TrainingProgramPage from './components/TrainingProgramPage'
@@ -320,11 +321,7 @@ function AuthenticatedApp({
               user={user}
               permission="CLASS_MANAGE"
             >
-              <PermissionPage
-                user={user}
-                permission="CLASS_MANAGE"
-                title="Lớp học"
-              />
+              <ClassPage onSessionExpired={() => onLogout('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')} />
             </ProtectedPage>
           }
         />
